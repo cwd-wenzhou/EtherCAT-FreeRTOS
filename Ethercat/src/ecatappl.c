@@ -561,10 +561,8 @@ void MainLoop(void)
                     bEcatFirstOutputsReceived = TRUE;
                     if ( bEcatOutputUpdateRunning )
                     {
-											  //bEcatOutputUpdateRunning Indicates the OP state, will be set in StartOutputHandler and reset in StopOutputHandler
-											
                         /* update the outputs */
-                        PDO_OutputMapping();  //This function will copies the outputs from the ESC memory to the local memory to the hardware
+                        PDO_OutputMapping();
                     }
                 }
                 else if ( nPdOutputSize == 0 )
@@ -619,9 +617,9 @@ void MainLoop(void)
 *////////////////////////////////////////////////////////////////////////////////////////
 void ECAT_Application(void)
 {
-    
+    {
         APPL_Application();
-    
+    }
 /* PDO Input mapping is called from the specific trigger ISR */
 }
 

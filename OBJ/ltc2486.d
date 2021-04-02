@@ -1,8 +1,9 @@
-..\obj\ltc2486.o: ..\HARDWARE\LTC2486.c
-..\obj\ltc2486.o: ..\HARDWARE\LTC2486.h
-..\obj\ltc2486.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
+..\obj\ltc2486.o: ..\HARDWARE\LTC\LTC2486.c
 ..\obj\ltc2486.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
-..\obj\ltc2486.o: ..\HARDWARE\SPI1.h
+..\obj\ltc2486.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
+..\obj\ltc2486.o: ..\HARDWARE\LTC\LTC2486.h
+..\obj\ltc2486.o: ..\HARDWARE\LTC\LTC24XX_general.h
+..\obj\ltc2486.o: ..\SYSTEM\delay\delay.h
 ..\obj\ltc2486.o: ..\SYSTEM\sys\sys.h
 ..\obj\ltc2486.o: ..\USER\stm32f4xx.h
 ..\obj\ltc2486.o: ..\CORE\core_cm4.h
@@ -38,3 +39,7 @@
 ..\obj\ltc2486.o: ..\FWLIB\inc\stm32f4xx_dac.h
 ..\obj\ltc2486.o: ..\FWLIB\inc\stm32f4xx_dcmi.h
 ..\obj\ltc2486.o: ..\FWLIB\inc\stm32f4xx_fsmc.h
+..\obj\ltc2486.o: ..\SYSTEM\usart\usart.h
+..\obj\ltc2486.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+..\obj\ltc2486.o: ..\HARDWARE\LTC\LTC24XX_general.h
+..\obj\ltc2486.o: ..\HARDWARE\SPI1.h

@@ -2,7 +2,7 @@
 ..\obj\el9800hw.o: ..\Ethercat\Inc\ecat_def.h
 ..\obj\el9800hw.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
 ..\obj\el9800hw.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
-..\obj\el9800hw.o: ..\HARDWARE\SPI2.h
+..\obj\el9800hw.o: ..\HARDWARE\FSMC.h
 ..\obj\el9800hw.o: ..\USER\stm32f4xx.h
 ..\obj\el9800hw.o: ..\CORE\core_cm4.h
 ..\obj\el9800hw.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
@@ -46,3 +46,6 @@
 ..\obj\el9800hw.o: ..\Ethercat\Inc\ecatappl.h
 ..\obj\el9800hw.o: ..\HARDWARE\includes.h
 ..\obj\el9800hw.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+..\obj\el9800hw.o: ..\HARDWARE\ads8343.h
+..\obj\el9800hw.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
+..\obj\el9800hw.o: ..\HARDWARE\SPI1.h

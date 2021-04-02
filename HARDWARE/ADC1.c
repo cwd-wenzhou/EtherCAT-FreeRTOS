@@ -3,13 +3,14 @@
 **                                 
 **
 **--------------File Info---------------------------------------------------------------------------------
-** File name:              ADC.c
+** File name:               .c
 ** Descriptions:           ADC channel0 hardware driver
 **
 **--------------------------------------------------------------------------------------------------------
-** Created by:              陈韦达
-** Created date:            2020.8.10
+** Created by:              lyd
+** Created date:            2015-05-01
 ** Version:                 v1.0
+** Descriptions:            The original version
 **
 **--------------------------------------------------------------------------------------------------------
 ** Modified by:             
@@ -19,24 +20,27 @@
 **
 *********************************************************************************************************/
 #include "stm32f4xx.h"
-/*******************************************************************************
-* Function Name  : ADC_GPIO_Configuration
-* Description    : Configures the different GPIO ports.
-* Input          : None
-* Output         : None
-* Return         : None
-* Attention		 : None
-*******************************************************************************/
-void ADC_GPIO_Configuration(void)
-{
-  GPIO_InitTypeDef GPIO_InitStructure;
-  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);//使能GPIOA时钟
-  //RCC_APB2PeriphClockCmd( RCC_APB2Periph_GPIOA , ENABLE); 		F107用这个				 				
-  /* Configure PA.00 (ADC Channel1) as analog input -------------------------*/
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;
-  GPIO_Init(GPIOA, &GPIO_InitStructure);
-}
+
+/* Private macro -------------------------------------------------------------*/
+/* Private variables ---------------------------------------------------------*/
+  #define ADCx                     ADC1
+  #define ADC_CHANNEL              ADC_Channel_1
+  #define ADCx_CLK                 RCC_APB2Periph_ADC1
+  #define ADCx_CHANNEL_GPIO_CLK    RCC_AHB1Periph_GPIOA
+  #define GPIO_PIN                 GPIO_Pin_1
+  #define GPIO_PORT                GPIOA
+  #define DMA_CHANNELx             DMA_Channel_0
+  #define DMA_STREAMx              DMA2_Stream0
+  #define ADCx_DR_ADDRESS          (&ADCx->DR) //((uint32_t)0x4001204C) 
+	
+	
+	
+	uint16_t uhADCxConvertedValue = 0;
+
+
+/* Private function prototypes -----------------------------------------------*/
+/* Private functions ---------------------------------------------------------*/
+
 
 /*******************************************************************************
 * Function Name  : ADC_Configuration
@@ -48,35 +52,82 @@ void ADC_GPIO_Configuration(void)
 *******************************************************************************/
 void ADC_Configuration(void)
 {
-  ADC_InitTypeDef ADC_InitStructure;
-	ADC_CommonInitTypeDef ADC_CommonInitStructure;
-  //RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1 | RCC_APB2Periph_SYSCFG, ENABLE); 不确定加不加这句
-  //RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1 | RCC_APB2Periph_AFIO, ENABLE);
-    
-	RCC_APB2PeriphResetCmd(RCC_APB2Periph_ADC1,ENABLE);	  //ADC1复位
-	RCC_APB2PeriphResetCmd(RCC_APB2Periph_ADC1,DISABLE);	//复位结束	 
- 
 	
-  ADC_CommonInitStructure.ADC_Mode = ADC_Mode_Independent;//独立模式
-  ADC_CommonInitStructure.ADC_TwoSamplingDelay = ADC_TwoSamplingDelay_5Cycles;//两个采样阶段之间的延迟5个时钟
-  ADC_CommonInitStructure.ADC_DMAAccessMode = ADC_DMAAccessMode_Disabled; //DMA失能
-  ADC_CommonInitStructure.ADC_Prescaler = ADC_Prescaler_Div4;//预分频4分频。ADCCLK=PCLK2/4=84/4=21Mhz,ADC时钟最好不要超过36Mhz 
-  ADC_CommonInit(&ADC_CommonInitStructure);//初始化
-	
-  /* ADC1 configuration ------------------------------------------------------*/
-  //ADC_InitStructure.ADC_Mode = ADC_Mode_Independent;	  												 /* 独立模式 */
-  ADC_InitStructure.ADC_ScanConvMode = ENABLE;			  																 /* 连续多通道模式 */
-  ADC_InitStructure.ADC_ContinuousConvMode = ENABLE;	   												/* 连续转换 */
-  //ADC_InitStructure.ADC_ExternalTrigConv = ADC_ExternalTrigConv_None;  //f1用这句
-	ADC_InitStructure.ADC_ExternalTrigConv = ADC_ExternalTrigConvEdge_None;  /* 转换不受外界决定 */
-  ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;		      								 /* 右对齐 */
-  //ADC_InitStructure.ADC_NbrOfChannel = 1;					   																			/* 扫描通道数 */
-  ADC_InitStructure.ADC_NbrOfConversion = 1;//1个转换在规则序列中 也就是只转换规则序列1 
-	ADC_Init(ADC1, &ADC_InitStructure);
+  ADC_InitTypeDef       ADC_InitStructure;
+  ADC_CommonInitTypeDef ADC_CommonInitStructure;
+  DMA_InitTypeDef       DMA_InitStructure;
+  GPIO_InitTypeDef      GPIO_InitStructure;
 
- /* ADC1 regular channel8 configuration */ 
-  ADC_RegularChannelConfig(ADC1, ADC_Channel_0, 1, ADC_SampleTime_480Cycles);  /* 通道X,采用时间为55.5周期,1代表规则通道第1个 */	
-  ADC_Cmd(ADC1, ENABLE);                 																																							/* Enable ADC1 */                      
-  ADC_SoftwareStartConv(ADC1);    																															/* 使能转换开始 */
+  /* Enable ADCx, DMA and GPIO clocks ****************************************/ 
+  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA2, ENABLE);
+  RCC_AHB1PeriphClockCmd(ADCx_CHANNEL_GPIO_CLK, ENABLE);  
+  RCC_APB2PeriphClockCmd(ADCx_CLK, ENABLE);
+  
+
+  /* DMA2 Stream0 channel2 configuration **************************************/
+  DMA_InitStructure.DMA_Channel = DMA_CHANNELx;  
+  DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)ADCx_DR_ADDRESS;
+  DMA_InitStructure.DMA_Memory0BaseAddr = (uint32_t)&uhADCxConvertedValue;
+  DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralToMemory;
+  DMA_InitStructure.DMA_BufferSize = 1;
+  DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
+  DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Disable;
+  DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord;
+  DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_HalfWord;
+  DMA_InitStructure.DMA_Mode = DMA_Mode_Circular;
+  DMA_InitStructure.DMA_Priority = DMA_Priority_High;
+  DMA_InitStructure.DMA_FIFOMode = DMA_FIFOMode_Disable;         
+  DMA_InitStructure.DMA_FIFOThreshold = DMA_FIFOThreshold_HalfFull;
+  DMA_InitStructure.DMA_MemoryBurst = DMA_MemoryBurst_Single;
+  DMA_InitStructure.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;
+  DMA_Init(DMA_STREAMx, &DMA_InitStructure);
+  DMA_Cmd(DMA_STREAMx, ENABLE);
+
+  /* Configure ADC1 Channe6 pin as analog input ******************************/
+  GPIO_InitStructure.GPIO_Pin = GPIO_PIN;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL ;
+  GPIO_Init(GPIO_PORT, &GPIO_InitStructure);
+
+  /* ADC Common Init **********************************************************/
+  ADC_CommonInitStructure.ADC_Mode = ADC_Mode_Independent;
+  ADC_CommonInitStructure.ADC_Prescaler =ADC_Prescaler_Div4;//ADC_Prescaler_Div2; 24M
+  ADC_CommonInitStructure.ADC_DMAAccessMode = ADC_DMAAccessMode_Disabled;
+  ADC_CommonInitStructure.ADC_TwoSamplingDelay = ADC_TwoSamplingDelay_5Cycles;
+  ADC_CommonInit(&ADC_CommonInitStructure);
+
+  /* ADC3 Init ****************************************************************/
+  ADC_InitStructure.ADC_Resolution = ADC_Resolution_12b;
+  ADC_InitStructure.ADC_ScanConvMode = DISABLE;
+  ADC_InitStructure.ADC_ContinuousConvMode = ENABLE;
+  ADC_InitStructure.ADC_ExternalTrigConvEdge = ADC_ExternalTrigConvEdge_None;
+  ADC_InitStructure.ADC_ExternalTrigConv = ADC_ExternalTrigConv_T1_CC1;
+  ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
+  ADC_InitStructure.ADC_NbrOfConversion = 1;
+  ADC_Init(ADCx, &ADC_InitStructure);
+
+  /* ADC3 regular channel7 configuration **************************************/
+  ADC_RegularChannelConfig(ADCx, ADC_CHANNEL, 1, ADC_SampleTime_3Cycles);
+
+ /* Enable DMA request after last transfer (Single-ADC mode) */
+  ADC_DMARequestAfterLastTransferCmd(ADCx, ENABLE);
+
+  /* Enable ADC3 DMA */
+  ADC_DMACmd(ADCx, ENABLE);
+
+  /* Enable ADC3 */
+  ADC_Cmd(ADCx, ENABLE);
+	
+//	DMA_ITConfig(DMA2_Stream0,DMA_IT_TC,ENABLE);
+
+ /* Start ADC Software Conversion */ 
+  ADC_SoftwareStartConv(ADCx);
 }
+
+
+
+
+
+
+
 

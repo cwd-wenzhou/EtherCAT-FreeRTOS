@@ -27,6 +27,11 @@ V5.01 : Start file change log
 ------
 -----------------------------------------------------------------------------------------*/
 #include "ecatappl.h"
+#include  <string.h>
+//添加于12.23，电压值的全局变量外部声明
+extern INT16 CH1_AD_Inputs,CH2_AD_Inputs,CH3_AD_Inputs,CH4_AD_Inputs;
+extern float CH1_current,CH2_current,CH3_current,CH4_current;
+//添加于12.23，电压值的全局变量外部声明
 
 
 /*-----------------------------------------------------------------------------------------
@@ -54,7 +59,7 @@ TOBJ1601;
 //2020.8.6添加
 typedef struct OBJ_STRUCT_PACKED_START {
    UINT16   u16SubIndex0; /**< \brief SubIndex 0*/
-   UINT32   aEntries[9]; /**< \brief Entry buffer*/
+   UINT32   aEntries[5]; /**< \brief Entry buffer*/
 } OBJ_STRUCT_PACKED_END
 TOBJ1602;
 
@@ -75,11 +80,28 @@ TOBJ1A01;
 /** \brief 0x1A02 (Analog input TxPDO) data structure*/
 typedef struct OBJ_STRUCT_PACKED_START {
    UINT16   u16SubIndex0; /**< \brief SubIndex 0*/
-   UINT32   aEntries[8]; /**< \brief Entry buffer*/
+   UINT32   aEntries[4]; /**< \brief Entry buffer*/
 } OBJ_STRUCT_PACKED_END
 TOBJ1A02;
 /** @}*/
 
+/** \brief 0x1A03 (Self_Check_Status TxPDO) data structure*/
+typedef struct OBJ_STRUCT_PACKED_START {
+   UINT16   u16SubIndex0; /**< \brief SubIndex 0*/
+   UINT32   aEntries[9]; /**< \brief Entry buffer*/
+} OBJ_STRUCT_PACKED_END
+TOBJ1A03;
+/** @}*/
+
+
+/** \brief 0x1A05 (厂家信息TxPDO) data structure*/
+typedef struct OBJ_STRUCT_PACKED_START {
+   UINT16   u16SubIndex0; /**< \brief SubIndex 0*/
+	// CHAR   product_name[4]; /**< \brief ECMK-A/B设备名称*/
+   UINT32   aEntries[8]; /**< \brief Entry buffer*/
+} OBJ_STRUCT_PACKED_END
+TOBJ1A05;
+/** @}*/
 
 /**
  * \addtogroup SmAssignObjects SyncManager Assignment Objects
@@ -90,7 +112,7 @@ TOBJ1A02;
 /** \brief 0x1C12 (SyncManager 2 assignment) data structure*/
 typedef struct OBJ_STRUCT_PACKED_START {
    UINT16   u16SubIndex0; /**< \brief SubIndex 0*/
-   UINT16   aEntries[2]; /**< \brief Entry buffer*/
+   UINT16   aEntries[1]; /**< \brief Entry buffer*/
 } OBJ_STRUCT_PACKED_END
 TOBJ1C12;
 
@@ -98,7 +120,7 @@ TOBJ1C12;
 /** \brief 0x1C13 (SyncManager 3 assignment) data structure*/
 typedef struct OBJ_STRUCT_PACKED_START {
    UINT16   u16SubIndex0; /**< \brief SubIndex 0*/
-   UINT16   aEntries[3]; /**< \brief Entry buffer*/
+   UINT16   aEntries[5]; /**< \brief Entry buffer*/
 } OBJ_STRUCT_PACKED_END
 TOBJ1C13;
 /** @}*/
@@ -124,15 +146,15 @@ TOBJ6000;
 /** \brief 0x6010 (Digital output object) data structure*/
 typedef struct OBJ_STRUCT_PACKED_START {
    UINT16   u16SubIndex0; /**< \brief SubIndex 0*/
-   BOOLEAN(CH1); /**< \brief AD_CH1*/
-   BOOLEAN(CH2); /**< \brief AD_CH2*/
-   BOOLEAN(CH3); /**< \brief AD_CH3*/
-   BOOLEAN(CH4); /**< \brief AD_CH4*/
-   BOOLEAN(DUMMY1); /**< \brief DUMMY1*/
-   BOOLEAN(DUMMY2); /**< \brief DUMMY2*/
-   BOOLEAN(DUMMY3); /**< \brief DUMMY3*/
-   BOOLEAN(DUMMY4); /**< \brief DUMMY4*/
-   ALIGN8(SubIndex008) /**< \brief 8Bit alignment*/
+   BOOLEAN(CH1_ENABLE); /**< \brief CH1_ENABLE*/
+   BOOLEAN(CH2_ENABLE); /**< \brief CH2_ENABLE*/
+   BOOLEAN(CH3_ENABLE); /**< \brief CH3_ENABLE*/
+   BOOLEAN(CH4_ENABLE); /**< \brief CH4_ENABLE*/
+   UINT16(CH1_Frequency); /**< \brief CH1_Frequency*/
+   UINT16(CH2_Frequency); /**< \brief CH2_Frequency*/
+   UINT16(CH3_Frequency); /**< \brief CH3_Frequency*/
+   UINT16(CH4_Frequency); /**< \brief CH4_Frequency*/
+   ALIGN12(SubIndex0012) /**< \brief 12Bit alignment*/
 } OBJ_STRUCT_PACKED_END
 TOBJ6010;
 /** @}*/
@@ -140,17 +162,59 @@ TOBJ6010;
 /** \brief 0x6020 (Analog input object) data structure*/
 typedef struct OBJ_STRUCT_PACKED_START {
    UINT16   u16SubIndex0; /**< \brief SubIndex 0*/
-   BOOLEAN(bUnderrange); /**< \brief (SI1) Analog input under range*/
-   BOOLEAN(bOverrange); /**< \brief (SI2) Analog input over range*/
-   BIT2(b2Limit1); /**< \brief (SI3) Analog input 1st limit*/
-   BIT2(b2Limit2); /**< \brief (SI5) Analog input 2nd limit*/
-   ALIGN2(SubIndex006) /**< \brief 2Bit alignment*/
-   ALIGN6(SubIndex007) /**< \brief 2Bit alignment*/
-   BOOLEAN(bTxPDOState); /**< \brief (SI15) TxPdo state*/
-   BOOLEAN(bTxPDOToggle); /**< \brief (SI16) TxPdo toggle*/
-   INT16   i16Analoginput; /**< \brief (SI17) Analog input value*/
+   float   CH_CURRENT[4];
 } OBJ_STRUCT_PACKED_END
 TOBJ6020;
+
+
+/** \brief 0x6030 (Self_Check input object) data structure*/
+typedef struct OBJ_STRUCT_PACKED_START {
+   UINT16   u16SubIndex0; /**< \brief SubIndex 0*/
+   BOOLEAN(CH1_STATE); /**< \brief CH1_STATE */
+   BOOLEAN(CH2_STATE); /**< \brief CH2_STATE */
+   BOOLEAN(CH3_STATE); /**< \brief CH3_STATE */
+   BOOLEAN(CH4_STATE); /**< \brief CH4_STATE */
+	 BOOLEAN(Software_STATE); /**< \brief Software_STATE */
+   BOOLEAN(Hardware_STATE); /**< \brief Hardware_STATE */
+   BOOLEAN(EtherCAT_STATE); /**< \brief EtherCAT_STATE */
+   BOOLEAN(ALL_STATUS); /**< \brief ALL_STATE */
+   ALIGN8(SubIndex08) /**< \brief 8Bit alignment*/
+} OBJ_STRUCT_PACKED_END
+TOBJ6030;
+
+
+/** \brief 0x6050 (厂家信息 input object) data structure*/
+typedef struct OBJ_STRUCT_PACKED_START {
+   UINT16   u16SubIndex0; /**< \brief SubIndex 0*/
+   CHAR   product_name[6]; /**< \brief ECMK-A/B设备名称*/
+   CHAR   hardware_version[4]; /**< \brief ECMK-A/B硬件版本*/
+   CHAR   software_version[4]; /**< \brief ECMK-A/B软件版本*/
+   UINT16(UID); /**< \brief 设备标识符*/
+	 UINT32(manufacture_ID);/**< \brief 制造商ID*/
+	 UINT32(product_ID);/**< \brief 产品ID*/
+	 UINT32(version_ID);/**< \brief 版本ID*/
+	 UINT32(num_ID);/**< \brief 序列号ID*/
+} OBJ_STRUCT_PACKED_END
+TOBJ6050;
+
+
+
+/** \brief 0x7010 (Digital output object) data structure*/
+typedef struct OBJ_STRUCT_PACKED_START {
+   UINT16   u16SubIndex0; /**< \brief SubIndex 0*/
+   BOOLEAN(CH1_ENABLE); /**< \brief CH1_ENABLE*/
+   BOOLEAN(CH2_ENABLE); /**< \brief CH2_ENABLE*/
+   BOOLEAN(CH3_ENABLE); /**< \brief CH3_ENABLE*/
+   BOOLEAN(CH4_ENABLE); /**< \brief CH4_ENABLE*/
+   UINT16(CH1_Frequency); /**< \brief CH1_Frequency*/
+   UINT16(CH2_Frequency); /**< \brief CH2_Frequency*/
+   UINT16(CH3_Frequency); /**< \brief CH3_Frequency*/
+   UINT16(CH4_Frequency); /**< \brief CH4_Frequency*/
+   ALIGN12(SubIndex0012) /**< \brief 12Bit alignment*/
+} OBJ_STRUCT_PACKED_END
+TOBJ7010;
+/** @}*/
+
 
 
 /** \brief 0x7010 (Digital output object) data structure*/
@@ -166,25 +230,23 @@ typedef struct OBJ_STRUCT_PACKED_START {
    BOOLEAN(DUMMY4); /**< \brief DUMMY4*/
    ALIGN8(SubIndex008) /**< \brief 8Bit alignment*/
 } OBJ_STRUCT_PACKED_END
-TOBJ7010;
+TOBJ7011;
 /** @}*/
 
 
-//edit on 2020.8,6
-/** \brief 0x70102 (Digital output object) data structure*/
-typedef struct OBJ_STRUCT_PACKED_START {
-   UINT16   u16SubIndex0; /**< \brief SubIndex 0*/
-   BOOLEAN(test1); /**< \brief test 1*/
-   BOOLEAN(test2); /**< \brief test 2*/
-   BOOLEAN(test3); /**< \brief test 3*/
-   BOOLEAN(test4); /**< \brief test 4*/
-   BOOLEAN(test5); /**< \brief test 5*/
-   BOOLEAN(test6); /**< \brief test 6*/
-   BOOLEAN(test7); /**< \brief test 7*/
-   BOOLEAN(test8); /**< \brief test 8*/
-   ALIGN8(SubIndex008) /**< \brief 8Bit alignment*/
-} OBJ_STRUCT_PACKED_END
-TOBJ7012;
+
+
+//edit on 2020.12.25
+/** \brief 0x7012 (电磁阀控制对象字典 output object) data structure*/
+//typedef struct OBJ_STRUCT_PACKED_START {
+//   UINT16   u16SubIndex0; /**< \brief SubIndex 0*/
+//   BOOLEAN(diancifa1); /**< \brief diancifa1 1*/
+//   BOOLEAN(diancifa2); /**< \brief diancifa1 2*/
+//   BOOLEAN(diancifa3); /**< \brief diancifa1 3*/
+//   BOOLEAN(diancifa4); /**< \brief diancifa1 4*/
+//   ALIGN12(SubIndex0012) /**< \brief 12Bit alignment*/
+//} OBJ_STRUCT_PACKED_END
+//TOBJ7012;
 /** @}*/
 
 
@@ -332,47 +394,49 @@ OBJCONST UCHAR OBJMEM aName0x1601[] = "DO RxPDO-Map\000\377";
  * SubIndex 2 : 0x7010.1 1bit (Reference to CH2_ENABLE)<br>
  * SubIndex 3 : 0x7010.1 1bit (Reference to CH3_ENABLE)<br>
  * SubIndex 4 : 0x7010.1 1bit (Reference to CH4_ENABLE)<br>
- * SubIndex 5 : 0x7010.1 1bit (Reference to DUMMY1), only for PIC24<br>
- * SubIndex 6 : 0x7010.1 1bit (Reference to DUMMY2), only for PIC24<br>
- * SubIndex 7 : 0x7010.1 1bit (Reference to DUMMY3), only for PIC24<br>
- * SubIndex 8 : 0x7010.1 1bit (Reference to DUMMY4), only for PIC24
+ * SubIndex 5 : 0x7010.1 16bit (Reference to CH1_Frequency)<br>
+ * SubIndex 6 : 0x7010.1 16bit (Reference to CH2_Frequency)<br>
+ * SubIndex 7 : 0x7010.1 16bit (Reference to CH3_Frequency)<br>
+ * SubIndex 8 : 0x7010.1 16bit (Reference to CH4_Frequency)
  */
 PROTO TOBJ1601 AD_Switch_Cmd_IN
 #ifdef _EVALBOARD_
- = {9, {0x70100101, 0x70100201, 0x70100301, 0x70100401,0x70100501, 0x70100601, 0x70100701, 0x70100801, 0x08}}
+ = {9, {0x70100101, 0x70100201, 0x70100301, 0x70100401,0x0c,0x70100510, 0x70100610, 0x70100710, 0x70100810}}
 #endif
 ;
 /** @}*/
 
- //添加于2020.8.6
-#ifdef _OBJD_
- OBJCONST TSDOINFOENTRYDESC	OBJMEM asEntryDesc0x1602[] = {
-   {DEFTYPE_UNSIGNED8, 0x8, ACCESS_READ },
-   {DEFTYPE_UNSIGNED32, 0x20, ACCESS_READ},
-   {DEFTYPE_UNSIGNED32, 0x20, ACCESS_READ},
-   {DEFTYPE_UNSIGNED32, 0x20, ACCESS_READ},
-   {DEFTYPE_UNSIGNED32, 0x20, ACCESS_READ},
-   {DEFTYPE_UNSIGNED32, 0x20, ACCESS_READ},
-   {DEFTYPE_UNSIGNED32, 0x20, ACCESS_READ},
-   {DEFTYPE_UNSIGNED32, 0x20, ACCESS_READ},
-   {DEFTYPE_UNSIGNED32, 0x20, ACCESS_READ},
-   {DEFTYPE_UNSIGNED32, 0x20, ACCESS_READ}};
+ //添加于2020.12.25
+ //电磁阀控制对象字典
+//#ifdef _OBJD_
+// OBJCONST TSDOINFOENTRYDESC	OBJMEM asEntryDesc0x1602[] = {
+//   {DEFTYPE_UNSIGNED8, 0x8, ACCESS_READ },
+//   {DEFTYPE_UNSIGNED32, 0x20, ACCESS_READ},
+//   {DEFTYPE_UNSIGNED32, 0x20, ACCESS_READ},
+//   {DEFTYPE_UNSIGNED32, 0x20, ACCESS_READ},
+//   {DEFTYPE_UNSIGNED32, 0x20, ACCESS_READ},
+//   {DEFTYPE_UNSIGNED32, 0x20, ACCESS_READ},
+//   {DEFTYPE_UNSIGNED32, 0x20, ACCESS_READ},
+//   {DEFTYPE_UNSIGNED32, 0x20, ACCESS_READ},
+//   {DEFTYPE_UNSIGNED32, 0x20, ACCESS_READ},
+//   {DEFTYPE_UNSIGNED32, 0x20, ACCESS_READ}};
 
-/**
- * \brief Object 0x1601 (Digital output RxPDO) name
- *
- * In this example no specific entry name is defined ("SubIndex xxx" is used)
- */
-OBJCONST UCHAR OBJMEM aName0x1602[] = "AO RxPDO-Map\000\377";
-#endif //#ifdef _OBJD_
+///**
+// * \brief Object 0x1601 (Digital output RxPDO) name
+// *
+// * In this example no specific entry name is defined ("SubIndex xxx" is used)
+// */
+//OBJCONST UCHAR OBJMEM aName0x1602[] = "AO RxPDO-Map\000\377";
+//#endif //#ifdef _OBJD_
 
-PROTO TOBJ1602 sDORxPDOMap_test
-#ifdef _EVALBOARD_
- = {9, {0x70120101, 0x70120201, 0x70120301, 0x70120401,0x70120501, 0x70120601, 0x70120701, 0x70120801, 0x08}}
-#endif
-;
-//添加于2020.8.6
+//PROTO TOBJ1602 sDORxPDOMap_test
+//#ifdef _EVALBOARD_
+// = {5, {0x70120101, 0x70120201, 0x70120301, 0x70120401,0x0c}}
+//#endif
+//;
+//添加于2020.12.25
  
+
 
 /**
  * \addtogroup PdoParameter PDO Parameter
@@ -474,8 +538,21 @@ PROTO TOBJ1A00 sDITxPDOMap
 ;
 
  
- 
- //添加于2020.9.10
+/**
+ * \brief Object 0x1601 (Digital output RxPDO) variable to handle object data
+ * 
+ * SubIndex 0 : 1<br>
+ * SubIndex 1 : 0x6010.1 1bit (Reference to CH1_ENABLE)<br>
+ * SubIndex 2 : 0x6010.1 1bit (Reference to CH2_ENABLE)<br>
+ * SubIndex 3 : 0x6010.1 1bit (Reference to CH3_ENABLE)<br>
+ * SubIndex 4 : 0x6010.1 1bit (Reference to CH4_ENABLE)<br>
+ * SubIndex 5 : 0x6010.1 16bit (Reference to CH1_Frequency)<br>
+ * SubIndex 6 : 0x6010.1 16bit (Reference to CH2_Frequency)<br>
+ * SubIndex 7 : 0x6010.1 16bit (Reference to CH3_Frequency)<br>
+ * SubIndex 8 : 0x6010.1 16bit (Reference to CH4_Frequency) 
+ * 修改于2020.12.23
+ */ 
+
 #ifdef _OBJD_
 OBJCONST TSDOINFOENTRYDESC	OBJMEM asEntryDesc0x1A01[] = {
    {DEFTYPE_UNSIGNED8, 0x8, ACCESS_READ },
@@ -495,23 +572,15 @@ OBJCONST UCHAR OBJMEM aName0x1A01[] = "AO RxPDO-Map\000\377";
 
 PROTO TOBJ1A01 AD_Switch_Status
 #ifdef _EVALBOARD_
- = {9, {0x60100101, 0x60100201, 0x60100301, 0x60100401,0x60100501, 0x60100601, 0x60100701, 0x60100801, 0x08}}
+ = {9, {0x60100101, 0x60100201, 0x60100301, 0x60100401,0x0c,0x60100510, 0x60100610, 0x60100710, 0x60100810}}
 #endif
 ;
 //添加于2020.9.10
  
- 
- 
- 
- 
- 
- 
- 
- 
 
 /**
- * \brief Object 0x1A02 (Analog input TxPDO) entry descriptions
- *
+ * \brief Object 0x1A02 (Current input TxPDO) entry descriptions
+ *修改于2020.12.22
  * SubIndex 0 : read only<br>
  * SubIndex x : read only<br>
  *  (x > 0)
@@ -519,10 +588,10 @@ PROTO TOBJ1A01 AD_Switch_Status
 #ifdef _OBJD_
 OBJCONST TSDOINFOENTRYDESC	OBJMEM asEntryDesc0x1A02[] = {
    {DEFTYPE_UNSIGNED8, 0x8, ACCESS_READ }, /* Subindex 000 */
-   {DEFTYPE_UNSIGNED32, 0x20, ACCESS_READ}, /* SubIndex 001: SubIndex 001 */
-   {DEFTYPE_UNSIGNED32, 0x20, ACCESS_READ}, /* SubIndex 002: SubIndex 002 */
-   {DEFTYPE_UNSIGNED32, 0x20, ACCESS_READ}, /* SubIndex 003: SubIndex 003 */
-   {DEFTYPE_UNSIGNED32, 0x20, ACCESS_READ}, /* SubIndex 004: SubIndex 004 */
+   {DEFTYPE_REAL32, 0x20, ACCESS_READ}, /* SubIndex 001: SubIndex 001 */
+   {DEFTYPE_REAL32, 0x20, ACCESS_READ}, /* SubIndex 002: SubIndex 002 */
+   {DEFTYPE_REAL32, 0x20, ACCESS_READ}, /* SubIndex 003: SubIndex 003 */
+   {DEFTYPE_REAL32, 0x20, ACCESS_READ}, /* SubIndex 004: SubIndex 004 */
    {DEFTYPE_UNSIGNED32, 0x20, ACCESS_READ}, /* SubIndex 005: SubIndex 005 */
    {DEFTYPE_UNSIGNED32, 0x20, ACCESS_READ}, /* SubIndex 006: SubIndex 006 */
    {DEFTYPE_UNSIGNED32, 0x20, ACCESS_READ}, /* SubIndex 007: SubIndex 007 */
@@ -537,27 +606,109 @@ OBJCONST TSDOINFOENTRYDESC	OBJMEM asEntryDesc0x1A02[] = {
 OBJCONST UCHAR OBJMEM aName0x1A02[] = "AI TxPDO-Map\000\377";
 #endif //#ifdef _OBJD_
 
-
-
+	
 /**
+ *
  * \brief Object 0x1A02 (Analog Input TxPDO) variable to handle object data
- * 
  * SubIndex 0 : 1<br>
- * SubIndex 1 : 0x6020.1 1bit (Reference to Analog under range)<br>
- * SubIndex 2 : 0x6020.2 1bit (Reference to Analog over range)<br>
- * SubIndex 3 : 0x6020.3 2bit (Reference to limit 1)<br>
- * SubIndex 4 : 0x6020.5 2bit (Reference to limit 2)<br>
- * SubIndex 5 : 8Bit Alignment<br>
- * SubIndex 6 : 0x1802.7 1bit (Reference to TxPDO State (stored in analog input struct))<br>
- * SubIndex 7 : 0x1802.9 1bit (Reference to TxPDO Toggle (stored in analog input struct))<br>
- * SubIndex 8 : 0x6020.17 16bit (Reference to Analog input value)
+ * SubIndex 1 : 0x6020.1 32bit (Reference to CH1-CURRENT)<br>
+ * SubIndex 2 : 0x6020.2 32bit (Reference to CH2-CURRENT)<br>
+ * SubIndex 3 : 0x6020.3 32bit (Reference to CH3-CURRENT)<br>
+ * SubIndex 4 : 0x6020.5 32bit (Reference to CH4-CURRENT)<br>
  */
 PROTO TOBJ1A02 sAITxPDOMap
 #ifdef _EVALBOARD_
-= {8, {0x60200101, 0x60200201, 0x60200302, 0x60200502, 0x08, 0x18020701, 0x18020901, 0x60201110}}
+= {4, {0x60200120, 0x60200220, 0x60200320, 0x60200420}}
 #endif
 ;
-/** @}*/
+/**修改于2020.12.22@}*/
+
+
+
+
+/**
+ * \brief Object 0x1A03 (电磁阀状态 input TxPDO) entry descriptions
+ *修改于2020.12.25
+ * SubIndex 0 : read only<br>
+ * SubIndex x : read only<br>
+ *  (x > 0)
+*/
+#ifdef _OBJD_
+OBJCONST TSDOINFOENTRYDESC	OBJMEM asEntryDesc0x1A03[] = {
+   {DEFTYPE_UNSIGNED8, 0x8, ACCESS_READ },
+   {DEFTYPE_UNSIGNED32, 0x20, ACCESS_READ},
+   {DEFTYPE_UNSIGNED32, 0x20, ACCESS_READ},
+   {DEFTYPE_UNSIGNED32, 0x20, ACCESS_READ},
+   {DEFTYPE_UNSIGNED32, 0x20, ACCESS_READ},
+   {DEFTYPE_UNSIGNED32, 0x20, ACCESS_READ},
+   {DEFTYPE_UNSIGNED32, 0x20, ACCESS_READ},
+   {DEFTYPE_UNSIGNED32, 0x20, ACCESS_READ},
+   {DEFTYPE_UNSIGNED32, 0x20, ACCESS_READ},
+   {DEFTYPE_UNSIGNED32, 0x20, ACCESS_READ}};
+
+/**
+ * \brief Object 0x1A03 (Self_Check_Status input TxPDO) entry descriptions
+ *
+ * In this example no specific entry name is defined ("SubIndex xxx" is used)
+ */
+OBJCONST UCHAR OBJMEM aName0x1A03[] = "AI TxPDO-Map\000\377";
+#endif //#ifdef _OBJD_
+
+	
+/**
+ *
+ * \brief Object 0x1A03(Self_Check_Status input TxPDO) entry descriptions
+ */
+PROTO TOBJ1A03 Selfcheck_STATUS_1A03
+#ifdef _EVALBOARD_
+= {9, {0x60300101, 0x60300201, 0x60300301, 0x60300401,0x60300501, 0x60300601, 0x60300701, 0x60300801,0x08}}
+#endif
+;
+/**修改于2020.12.29@}*/
+
+
+
+
+/**
+ * \brief Object 0x1A05 (厂家信息 input TxPDO) entry descriptions
+ *修改于2020.12.28
+ * SubIndex 0 : read only<br>
+ * SubIndex x : read only<br>
+ *  (x > 0)
+*/
+#ifdef _OBJD_
+OBJCONST TSDOINFOENTRYDESC	OBJMEM asEntryDesc0x1A05[] = {
+   {DEFTYPE_UNSIGNED8, 0x8, ACCESS_READ },
+   {DEFTYPE_UNSIGNED32, 0x20, ACCESS_READ},
+   {DEFTYPE_UNSIGNED32, 0x20, ACCESS_READ},
+   {DEFTYPE_UNSIGNED32, 0x20, ACCESS_READ},
+   {DEFTYPE_UNSIGNED32, 0x20, ACCESS_READ},
+   {DEFTYPE_UNSIGNED32, 0x20, ACCESS_READ},
+   {DEFTYPE_UNSIGNED32, 0x20, ACCESS_READ},
+   {DEFTYPE_UNSIGNED32, 0x20, ACCESS_READ},
+   {DEFTYPE_UNSIGNED32, 0x20, ACCESS_READ},
+   {DEFTYPE_UNSIGNED32, 0x20, ACCESS_READ}};
+
+/**
+ * \brief Object 0x1A05 (厂家信息 input TxPDO) entry descriptions
+ *
+ * In this example no specific entry name is defined ("SubIndex xxx" is used)
+ */
+OBJCONST UCHAR OBJMEM aName0x1A05[] = "PRODUCT INFO TxPDO-Map\000\377";
+#endif //#ifdef _OBJD_0
+
+	
+/**
+ *
+ * \brief Object 0x1A05 (厂家信息 input TxPDO) entry descriptions
+ */
+PROTO TOBJ1A05 ECMK_INFO_1A05
+#ifdef _EVALBOARD_
+= {8, {0x60500130, 0x60500220, 0x60500320, 0x60500410,0x60500520,0x60500620,0x60500720,0x60500820}}
+#endif
+;
+/**修改于2020.12.28@}*/
+
 
 
 /**
@@ -582,7 +733,7 @@ OBJCONST UCHAR OBJMEM aName0x1C12[] = "RxPDO assign";
  */
 PROTO TOBJ1C12 sRxPDOassign
 #ifdef _EVALBOARD_
-= {0x02, {0x1601,0x1602}}
+= {0x01, {0x1601}}
 #endif
 ;
 
@@ -606,7 +757,7 @@ OBJCONST UCHAR OBJMEM aName0x1C13[] = "TxPDO assign";
  */
 PROTO TOBJ1C13 sTxPDOassign
 #ifdef _EVALBOARD_
-= {0x03, {0x1A00,0x1A01,0x1A02}}
+= {0x05, {0x1A00,0x1A01,0x1A02,0x1A03,0x1A05}}
 #endif
 ;
 /** @}*/
@@ -662,16 +813,16 @@ OBJCONST TSDOINFOENTRYDESC    OBJMEM asEntryDesc0x6010[] = {
    {DEFTYPE_BOOLEAN, 0x01, ACCESS_READ | OBJACCESS_RXPDOMAPPING}, /* SubIndex 002: CH2_ENABLE  */
    {DEFTYPE_BOOLEAN, 0x01, ACCESS_READ | OBJACCESS_RXPDOMAPPING}, /* SubIndex 003: CH3_ENABLE  */
    {DEFTYPE_BOOLEAN, 0x01, ACCESS_READ | OBJACCESS_RXPDOMAPPING}, /* SubIndex 004: CH4_ENABLE  */
-   {DEFTYPE_BOOLEAN, 0x01, ACCESS_READ | OBJACCESS_RXPDOMAPPING}, /* SubIndex 005: DUMMY1 */
-   {DEFTYPE_BOOLEAN, 0x01, ACCESS_READ | OBJACCESS_RXPDOMAPPING}, /* SubIndex 006: DUMMY2 */
-   {DEFTYPE_BOOLEAN, 0x01, ACCESS_READ | OBJACCESS_RXPDOMAPPING}, /* SubIndex 007: DUMMY3 */
-   {DEFTYPE_BOOLEAN, 0x01, ACCESS_READ | OBJACCESS_RXPDOMAPPING}, /* SubIndex 008: DUMMY4 */
-   {0x0000, 0x08, 0}}; /* Subindex 008 for align */
+   {DEFTYPE_UNSIGNED8, 0x08, ACCESS_READ | OBJACCESS_RXPDOMAPPING}, /* SubIndex 005: CH1_Frequency */
+   {DEFTYPE_UNSIGNED8, 0x08, ACCESS_READ | OBJACCESS_RXPDOMAPPING}, /* SubIndex 006: CH2_Frequency */
+   {DEFTYPE_UNSIGNED8, 0x08, ACCESS_READ | OBJACCESS_RXPDOMAPPING}, /* SubIndex 007: CH3_Frequency */
+   {DEFTYPE_UNSIGNED8, 0x08, ACCESS_READ | OBJACCESS_RXPDOMAPPING}, /* SubIndex 008: CH4_Frequency */
+   {0x0000, 0x04, 0}}; /* Subindex 008 for align */
 
 /**
  * \brief 0x6000 (Digital input object) object and entry names
  */
-OBJCONST UCHAR OBJMEM aName0x6010[] = "AD_Switch_Status Outputs\000CH1_ENABLE 1\000CH2_ENABLE 2\000CH3_ENABLE 3\000CH4_ENABLE 4\000DUMMY1 5\000DUMMY2 6\000DUMMY3 7\000DUMMY4 8\000\000\377";
+OBJCONST UCHAR OBJMEM aName0x6010[] = "AD_Switch_Status Outputs\000CH1_ENABLE 1\000CH2_ENABLE 2\000CH3_ENABLE 3\000CH4_ENABLE 4\000CH1_Frequency 5\000CH2_Frequency 6\000CH3_Frequency 7\000CH4_Frequency 8\000\000\377";
 #endif //#ifdef _OBJD_
 
 /**
@@ -680,7 +831,7 @@ OBJCONST UCHAR OBJMEM aName0x6010[] = "AD_Switch_Status Outputs\000CH1_ENABLE 1\
  */
 PROTO TOBJ6010 AD_Switch_Status_OUT
 #ifdef _EVALBOARD_
-= {8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0}
+= {8, 0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x01, 0}
 #endif
 ;	 
 
@@ -688,51 +839,19 @@ PROTO TOBJ6010 AD_Switch_Status_OUT
 #ifdef _OBJD_
 /**
  * \brief Object 0x6020 (Analog input object) entry descriptions
- *
- * SubIndex 0 : read only<br>
- * SubIndex 001: Underrange<br>
- * SubIndex 002: Overrange<br>
- * SubIndex 003: Limit 1<br>
- * Subindex 004: doesn't exist<br>
- * SubIndex 005: Limit 2<br>
- * Subindex 006: 2Bit Alignment<br>
- * Subindex 007: 6Bit Alignment<br>
- * Subindex 008: doesn't exist<br>
- * Subindex 009: doesn't exist<br>
- * Subindex 010: doesn't exist<br>
- * Subindex 011: doesn't exist<br>
- * Subindex 012: doesn't exist<br>
- * Subindex 013: doesn't exist<br>
- * Subindex 014: doesn't exist<br>
- * SubIndex 015: TxPDO State<br>
- * SubIndex 016: TxPDO Toggle<br>
- * SubIndex 017: Analog input
- */
+**/
 OBJCONST TSDOINFOENTRYDESC    OBJMEM asEntryDesc0x6020[] = {
-   {DEFTYPE_UNSIGNED8, 0x8, ACCESS_READ },
-   {DEFTYPE_BOOLEAN, 0x01, ACCESS_READ | OBJACCESS_TXPDOMAPPING},
-   {DEFTYPE_BOOLEAN, 0x01, ACCESS_READ | OBJACCESS_TXPDOMAPPING},
-   {DEFTYPE_BIT2, 0x02, ACCESS_READ | OBJACCESS_TXPDOMAPPING},
-   {0x0000, 0, 0},
-   {DEFTYPE_BIT2, 0x02, ACCESS_READ | OBJACCESS_TXPDOMAPPING},
-   {0x0000, 0x02, 0},
-   {0x0000, 0x06, 0},
-   {0x0000, 0, 0},
-   {0x0000, 0, 0},
-   {0x0000, 0, 0},
-   {0x0000, 0, 0},
-   {0x0000, 0, 0},
-   {0x0000, 0, 0},
-   {0x0000, 0, 0},
-   {DEFTYPE_BOOLEAN, 0x01, ACCESS_READ | OBJACCESS_TXPDOMAPPING},
-   {DEFTYPE_BOOLEAN, 0x01, ACCESS_READ | OBJACCESS_TXPDOMAPPING},
-   {DEFTYPE_INTEGER16, 0x10, ACCESS_READ | OBJACCESS_TXPDOMAPPING}};
+   {DEFTYPE_REAL32, 0x20, ACCESS_READ | OBJACCESS_TXPDOMAPPING},/* SubIndex 001: CH1_VOLTAGE  */
+   {DEFTYPE_REAL32, 0x20, ACCESS_READ | OBJACCESS_TXPDOMAPPING},/* SubIndex 002: CH2_VOLTAGE  */
+   {DEFTYPE_REAL32, 0x20, ACCESS_READ | OBJACCESS_TXPDOMAPPING},/* SubIndex 003: CH3_VOLTAGE  */
+   {DEFTYPE_REAL32, 0x20, ACCESS_READ | OBJACCESS_TXPDOMAPPING} /* SubIndex 004: CH4_VOLTAGE  */
+	 };
 
 
 /**
  * \brief 0x6020 (Analog input object) object and entry names
  */
-OBJCONST UCHAR OBJMEM aName0x6020[] = "AI Inputs\000Underrange\000Overrange\000Limit 1\000\000Limit 2\000\000\000\000\000\000\000\000\000\000TxPDO State\000TxPDO Toggle\000Analog input\000\377";
+OBJCONST UCHAR OBJMEM aName0x6020[] = "AI Outputs\000CH1_VOLTAGE 1\000CH2_VOLTAGE 2\000CH3_VOLTAGE 3\000CH4_VOLTAGE 4\000\000\377";
 #endif //#ifdef _OBJD_
 
 
@@ -741,12 +860,82 @@ OBJCONST UCHAR OBJMEM aName0x6020[] = "AI Inputs\000Underrange\000Overrange\000L
  * \brief 0x6020 (Analog input object) variable to handle object data
  * 
  */
-PROTO TOBJ6020 sAIInputs
+PROTO TOBJ6020 Current_Inputs
 #ifdef _EVALBOARD_
-= {17, 0x00, 0x00, 0x00, 0x00, 0, 0, 0x00, 0x00, 0x7FFF}
+= {4, 0x00, 0x00, 0x00, 0x00}
 #endif
 ;
 
+
+#ifdef _OBJD_
+/**
+ * \brief Object 0x6030 (SELF_CHECK_STATUS input object)entry descriptions
+**/
+OBJCONST TSDOINFOENTRYDESC    OBJMEM asEntryDesc0x6030[] = {
+   {DEFTYPE_BOOLEAN, 0x01, ACCESS_READ | OBJACCESS_RXPDOMAPPING}, /* SubIndex 001: CH1_state */
+   {DEFTYPE_BOOLEAN, 0x01, ACCESS_READ | OBJACCESS_RXPDOMAPPING}, /* SubIndex 002: CH2_state */
+   {DEFTYPE_BOOLEAN, 0x01, ACCESS_READ | OBJACCESS_RXPDOMAPPING}, /* SubIndex 003: CH3_state */
+   {DEFTYPE_BOOLEAN, 0x01, ACCESS_READ | OBJACCESS_RXPDOMAPPING}, /* SubIndex 004: CH4_state */
+	 {DEFTYPE_BOOLEAN, 0x01, ACCESS_READ | OBJACCESS_RXPDOMAPPING}, /* SubIndex 005: software_state */
+   {DEFTYPE_BOOLEAN, 0x01, ACCESS_READ | OBJACCESS_RXPDOMAPPING}, /* SubIndex 002: hardware_state */
+   {DEFTYPE_BOOLEAN, 0x01, ACCESS_READ | OBJACCESS_RXPDOMAPPING}, /* SubIndex 003: EtherCAT_state */
+   {DEFTYPE_BOOLEAN, 0x01, ACCESS_READ | OBJACCESS_RXPDOMAPPING}, /* SubIndex 004: ALL_state */
+	 {0x0000, 0x08, 0}
+	 };
+
+
+/**
+ * \brief Object 0x6030 (SELF_CHECK_STATUS input object) entry descriptions
+ */
+OBJCONST UCHAR OBJMEM aName0x6030[] = "Diancifa_states_Inputs Outputs\000CH1_state 1\000CH2_state 2\000CH3_state 3\000CH4_state 4\000software_state 5\000hardware_state 6\000EtherCAT_state 7\000ALL_state 8\000\000\377";
+#endif //#ifdef _OBJD_
+
+
+
+/**
+ * \brief 0x6030 (SELF_CHECK_STATUS input object) variable to handle object data
+ * 
+ */
+PROTO TOBJ6030 Selfcheck_STATUS_6030
+#ifdef _EVALBOARD_
+= {8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
+#endif
+;
+
+#ifdef _OBJD_
+/**
+ * \brief Object 0x6050 (厂家信息input object)entry descriptions
+**/
+OBJCONST TSDOINFOENTRYDESC    OBJMEM asEntryDesc0x6050[] = {
+   {DEFTYPE_VISIBLESTRING, 0x30, ACCESS_READ | OBJACCESS_RXPDOMAPPING}, /* SubIndex 001: ECMK-A/B 设备名称 */
+   {DEFTYPE_VISIBLESTRING, 0x20, ACCESS_READ | OBJACCESS_RXPDOMAPPING}, /* SubIndex 002: V1.0 硬件版本 */
+   {DEFTYPE_VISIBLESTRING, 0x20, ACCESS_READ | OBJACCESS_RXPDOMAPPING}, /* SubIndex 003: V1.0 软件版本*/
+   {DEFTYPE_UNSIGNED16, 0x10, ACCESS_READ | OBJACCESS_RXPDOMAPPING}, /* SubIndex 004: 0x04设备标识符 */
+	 {DEFTYPE_UNSIGNED32, 0x20, ACCESS_READ | OBJACCESS_TXPDOMAPPING}, /* SubIndex 005: 0x1制造商ID*/
+	 {DEFTYPE_UNSIGNED32, 0x20, ACCESS_READ | OBJACCESS_TXPDOMAPPING}, /* SubIndex 006: 0x1产品码ID*/
+	 {DEFTYPE_UNSIGNED32, 0x20, ACCESS_READ | OBJACCESS_TXPDOMAPPING}, /* SubIndex 007: 0x1版本号ID*/
+	 {DEFTYPE_UNSIGNED32, 0x20, ACCESS_READ | OBJACCESS_TXPDOMAPPING}, /* SubIndex 008: 0x1序列号ID*/
+	 };
+
+
+/**
+ * \brief Object 0x6050 (厂家信息input object) entry descriptions
+ */
+OBJCONST UCHAR OBJMEM aName0x6050[] = "Product_Info_Query Outputs\000ECMKA/B 1\000HARDWARE-VERSION 2\000SOFTWARE-VERSION 3\000UDI 4\000manufactured ID 5\000PRODUCT ID 6\000PRODUCT ID 7\000PRODUCT ID 8\000\000\377";
+#endif //#ifdef _OBJD_
+
+
+
+/**
+ * \brief 0x6050 (厂家信息input object)entry descriptions
+ * 
+ */
+PROTO TOBJ6050 ECMK_INFO_6050
+#ifdef _EVALBOARD_
+//= {8,0x01,0x01,0x01, 0x04,0x1,0x1,0x1,0x1,0}
+= {8,"ECMK-A", "V1.0", "V1.0", 0x04,0x11111111,0x01,0x01,0x01}
+#endif
+;
 
 
 /**
@@ -763,16 +952,16 @@ OBJCONST TSDOINFOENTRYDESC    OBJMEM asEntryDesc0x7010[] = {
    {DEFTYPE_BOOLEAN, 0x01, ACCESS_READ | OBJACCESS_RXPDOMAPPING}, /* SubIndex 002: CH2_ENABLE  */
    {DEFTYPE_BOOLEAN, 0x01, ACCESS_READ | OBJACCESS_RXPDOMAPPING}, /* SubIndex 003: CH3_ENABLE  */
    {DEFTYPE_BOOLEAN, 0x01, ACCESS_READ | OBJACCESS_RXPDOMAPPING}, /* SubIndex 004: CH4_ENABLE  */
-   {DEFTYPE_BOOLEAN, 0x01, ACCESS_READ | OBJACCESS_RXPDOMAPPING}, /* SubIndex 005: DUMMY1 */
-   {DEFTYPE_BOOLEAN, 0x01, ACCESS_READ | OBJACCESS_RXPDOMAPPING}, /* SubIndex 006: DUMMY2 */
-   {DEFTYPE_BOOLEAN, 0x01, ACCESS_READ | OBJACCESS_RXPDOMAPPING}, /* SubIndex 007: DUMMY3 */
-   {DEFTYPE_BOOLEAN, 0x01, ACCESS_READ | OBJACCESS_RXPDOMAPPING}, /* SubIndex 008: DUMMY4 */
-   {0x0000, 0x08, 0}}; /* Subindex 008 for align */
+   {DEFTYPE_UNSIGNED8, 0x08, ACCESS_READ | OBJACCESS_RXPDOMAPPING}, /* SubIndex 005: CH1_Frequency */
+   {DEFTYPE_UNSIGNED8, 0x08, ACCESS_READ | OBJACCESS_RXPDOMAPPING}, /* SubIndex 006: CH2_Frequency */
+   {DEFTYPE_UNSIGNED8, 0x08, ACCESS_READ | OBJACCESS_RXPDOMAPPING}, /* SubIndex 007: CH3_Frequency */
+   {DEFTYPE_UNSIGNED8, 0x08, ACCESS_READ | OBJACCESS_RXPDOMAPPING}, /* SubIndex 008: CH4_Frequency */
+   {0x0000, 0x04, 0}}; /* Subindex 008 for align */
 
 /**
  * \brief 0x6000 (Digital input object) object and entry names
  */
-OBJCONST UCHAR OBJMEM aName0x7010[] = "DO Outputs\000CH1_ENABLE 1\000CH2_ENABLE 2\000CH3_ENABLE 3\000CH4_ENABLE 4\000DUMMY1 5\000DUMMY2 6\000DUMMY3 7\000DUMMY4 8\000\000\377";
+OBJCONST UCHAR OBJMEM aName0x7010[] = "DO Outputs\000CH1_ENABLE 1\000CH2_ENABLE 2\000CH3_ENABLE 3\000CH4_ENABLE 4\000CH1_Frequency 5\000CH2_Frequency 6\000CH3_Frequency 7\000CH4_Frequency 8\000\000\377";
 #endif //#ifdef _OBJD_
 
 /**
@@ -786,7 +975,7 @@ PROTO TOBJ7010 AD_Switch_Cmd
 ;	 
 
 
-//测试用  
+//测试用
 #ifdef _OBJD_
      //                                                        类型                长度  权限          权限
 	OBJCONST TSDOINFOENTRYDESC    OBJMEM asEntryDesc0x7011[] = {DEFTYPE_UNSIGNED32, 0x20, ACCESS_READ | OBJACCESS_RXPDOMAPPING };
@@ -799,29 +988,25 @@ PROTO UINT32 VAR0x7011
 #endif
 ;
 
-#ifdef _OBJD_
-OBJCONST TSDOINFOENTRYDESC    OBJMEM asEntryDesc0x7012[] = {
-   {DEFTYPE_UNSIGNED8, 0x8, ACCESS_READ }, /* Subindex 000 */
-   {DEFTYPE_BOOLEAN, 0x01, ACCESS_READ | OBJACCESS_RXPDOMAPPING}, /* SubIndex 001: LED 1 */
-   {DEFTYPE_BOOLEAN, 0x01, ACCESS_READ | OBJACCESS_RXPDOMAPPING}, /* SubIndex 002: LED 2 */
-   {DEFTYPE_BOOLEAN, 0x01, ACCESS_READ | OBJACCESS_RXPDOMAPPING}, /* SubIndex 003: LED 3 */
-   {DEFTYPE_BOOLEAN, 0x01, ACCESS_READ | OBJACCESS_RXPDOMAPPING}, /* SubIndex 004: LED 4 */
-   {DEFTYPE_BOOLEAN, 0x01, ACCESS_READ | OBJACCESS_RXPDOMAPPING}, /* SubIndex 005: LED 5 */
-   {DEFTYPE_BOOLEAN, 0x01, ACCESS_READ | OBJACCESS_RXPDOMAPPING}, /* SubIndex 006: LED 6 */
-   {DEFTYPE_BOOLEAN, 0x01, ACCESS_READ | OBJACCESS_RXPDOMAPPING}, /* SubIndex 007: LED 7 */
-   {DEFTYPE_BOOLEAN, 0x01, ACCESS_READ | OBJACCESS_RXPDOMAPPING}, /* SubIndex 008: LED 8 */
-   {0x0000, 0x08, 0}}; /* Subindex 008 for align */
+//电磁阀控制命令 	
+//#ifdef _OBJD_
+//OBJCONST TSDOINFOENTRYDESC    OBJMEM asEntryDesc0x7012[] = {
+//   {DEFTYPE_UNSIGNED8, 0x8, ACCESS_READ }, /* Subindex 000 */
+//   {DEFTYPE_BOOLEAN, 0x01, ACCESS_READ | OBJACCESS_RXPDOMAPPING}, /* SubIndex 001: diancifa_cmd 1 */
+//   {DEFTYPE_BOOLEAN, 0x01, ACCESS_READ | OBJACCESS_RXPDOMAPPING}, /* SubIndex 002: diancifa_cmd 2 */
+//   {DEFTYPE_BOOLEAN, 0x01, ACCESS_READ | OBJACCESS_RXPDOMAPPING}, /* SubIndex 003: diancifa_cmd 3 */
+//   {DEFTYPE_BOOLEAN, 0x01, ACCESS_READ | OBJACCESS_RXPDOMAPPING}, /* SubIndex 004: diancifa_cmd 4 */
+//   {0x0000, 0x0c, 0}}; /* Subindex 008 for align */
 
 
-OBJCONST UCHAR OBJMEM aName0x7012[] = "Var0x7012 Outputs\000TEST 1\000TEST 2\000TEST 3\000TEST 4\000TEST 5\000TEST 6\000TEST 7\000TEST 8\000\000\377";
-#endif //#ifdef _OBJD_
+//OBJCONST UCHAR OBJMEM aName0x7012[] = "Var0x7012 Outputs\000TEST 1\000TEST 2\000TEST 3\000TEST 4\000TEST 5\000TEST 6\000TEST 7\000TEST 8\000\000\377";
+//#endif //#ifdef _OBJD_
 
-PROTO TOBJ7012 VAR0x7012
-#ifdef _EVALBOARD_
-= {8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0}
-#endif
-;	 	 
-
+//PROTO TOBJ7012 Diancifa_cmd
+//#ifdef _EVALBOARD_
+//= {5, 0x00, 0x00, 0x00, 0x00, 0}
+//#endif
+//;	 	 
 
 
 
@@ -991,17 +1176,19 @@ TOBJECT    OBJMEM ApplicationObjDic[] = {
    /* Object 0x1601 */
    {NULL,NULL,  0x1601, {DEFTYPE_PDOMAPPING, 9 | (OBJCODE_REC << 8)}, asEntryDesc0x1601, aName0x1601, &AD_Switch_Cmd_IN, NULL, NULL, 0x0000 },
 	 
-	 {NULL,NULL,  0x1602, {DEFTYPE_PDOMAPPING, 9 | (OBJCODE_REC << 8)}, asEntryDesc0x1602, aName0x1602, &sDORxPDOMap_test, NULL, NULL, 0x0000 },
-	 
+//	 {NULL,NULL,  0x1602, {DEFTYPE_PDOMAPPING, 9 | (OBJCODE_REC << 8)}, asEntryDesc0x1602, aName0x1602, &sDORxPDOMap_test, NULL, NULL, 0x0000 },	 
    /* Object 0x1802 */
    {NULL,NULL,  0x1802, {DEFTYPE_RECORD, 9 | (OBJCODE_REC << 8)}, asEntryDesc0x1802, aName0x1802,&TxPDO1802Subindex0, ReadObject0x1802, NULL, 0x0000 },
    /* Object 0x1A00 */
    {NULL,NULL,   0x1A00, {DEFTYPE_PDOMAPPING, 9 | (OBJCODE_REC << 8)}, asEntryDesc0x1A00, aName0x1A00, &sDITxPDOMap, NULL, NULL, 0x0000 },
 	  /* Object 0x1A01 */
    {NULL,NULL,   0x1A01, {DEFTYPE_PDOMAPPING, 9 | (OBJCODE_REC << 8)}, asEntryDesc0x1A01, aName0x1A01, &AD_Switch_Status, NULL, NULL, 0x0000 },
-	 
    /* Object 0x1A02 */
    {NULL,NULL,   0x1A02, {DEFTYPE_PDOMAPPING, 8 | (OBJCODE_REC << 8)}, asEntryDesc0x1A02, aName0x1A02, &sAITxPDOMap, NULL, NULL, 0x0000 },
+	 /* Object 0x1A03 */
+   {NULL,NULL,   0x1A03, {DEFTYPE_PDOMAPPING, 9 | (OBJCODE_REC << 8)}, asEntryDesc0x1A03, aName0x1A03, &Selfcheck_STATUS_1A03, NULL, NULL, 0x0000 },
+	 /* Object 0x1A05 */
+   {NULL,NULL,   0x1A05, {DEFTYPE_PDOMAPPING, 9 | (OBJCODE_REC << 8)}, asEntryDesc0x1A05, aName0x1A05, &ECMK_INFO_1A05, NULL, NULL, 0x0000 },
     /* Object 0x1C12 */
    {NULL,NULL,   0x1C12, {DEFTYPE_UNSIGNED16, 1 | (OBJCODE_ARR << 8)}, asPDOAssignEntryDesc, aName0x1C12, &sRxPDOassign, NULL, NULL, 0x0000 },
    /* Object 0x1C13 */
@@ -1011,19 +1198,20 @@ TOBJECT    OBJMEM ApplicationObjDic[] = {
 	 
 	 /* Object 0x6010 */
    {NULL,NULL,   0x6010, {DEFTYPE_RECORD, 8 | (OBJCODE_REC << 8)}, asEntryDesc0x6010, aName0x6010, &AD_Switch_Status_OUT, NULL, NULL, 0x0000 },
-	 
+	 //                     数据类型    ，子索引个数
    /* Object 0x6020 */
-   {NULL,NULL,   0x6020, {DEFTYPE_RECORD, 17 | (OBJCODE_REC << 8)}, asEntryDesc0x6020, aName0x6020, &sAIInputs, NULL, NULL, 0x0000 },
+   {NULL,NULL,   0x6020, {DEFTYPE_RECORD, 17 | (OBJCODE_REC << 8)}, asEntryDesc0x6020, aName0x6020, &Current_Inputs, NULL, NULL, 0x0000 },
+	    /* Object 0x6030 */
+   {NULL,NULL,   0x6030, {DEFTYPE_RECORD, 8 | (OBJCODE_REC << 8)}, asEntryDesc0x6030, aName0x6030, &Selfcheck_STATUS_6030, NULL, NULL, 0x0000 },
+	 	    /* Object 0x6050 */
+   {NULL,NULL,   0x6050, {DEFTYPE_RECORD, 8 | (OBJCODE_REC << 8)}, asEntryDesc0x6050, aName0x6050, &ECMK_INFO_6050, NULL, NULL, 0x0000 },
    /* Object 0x7010 */
    {NULL,NULL,   0x7010, {DEFTYPE_RECORD, 8 | (OBJCODE_REC << 8)}, asEntryDesc0x7010, aName0x7010, &AD_Switch_Cmd, NULL, NULL, 0x0000 },
 	 /* Object 0x7011 for test */
 	 {NULL,NULL,   0x7011, {DEFTYPE_UNSIGNED32, 0 | (OBJCODE_VAR << 8)}, asEntryDesc0x7011, aName0x7011, &VAR0x7011, NULL, NULL, 0x0000 },	 
 	 
-	 {NULL,NULL,   0x7012, {DEFTYPE_RECORD, 8 | (OBJCODE_REC << 8)}, asEntryDesc0x7012, aName0x7012, &VAR0x7012, NULL, NULL, 0x0000 },
-	 
-	 
-	 
-    /* Object 0x8020 */
+	// {NULL,NULL,   0x7012, {DEFTYPE_RECORD, 8 | (OBJCODE_REC << 8)}, asEntryDesc0x7012, aName0x7012, &Diancifa_cmd, NULL, NULL, 0x0000 },
+	     /* Object 0x8020 */
     {NULL,NULL,   0x8020, {DEFTYPE_RECORD, 20 | (OBJCODE_REC << 8)}, asEntryDesc0x8020, aName0x8020, &sAISettings, NULL, NULL, 0x0008 },
     /* Object 0xF000 */
    {NULL,NULL,   0xF000, {DEFTYPE_RECORD, 2 | (OBJCODE_REC << 8)}, asEntryDesc0xF000, aName0xF000, &sModulardeviceprofile, NULL, NULL, 0x0000 },
