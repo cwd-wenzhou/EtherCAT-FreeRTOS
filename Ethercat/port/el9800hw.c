@@ -1,3 +1,64 @@
+/**
+\addtogroup EL9800_HW EL9800 Platform (Serial ESC Access)
+@{
+*/
+
+/**
+\file    el9800hw.c
+\author EthercatSSC@beckhoff.com
+\brief Implementation
+Hardware access implementation for EL9800 onboard PIC18/PIC24 connected via SPI to ESC
+
+\version 5.11
+
+<br>Changes to version V5.10:<br>
+V5.11 ECAT10: change PROTO handling to prevent compiler errors<br>
+V5.11 EL9800 2: change PDI access test to 32Bit ESC access and reset AL Event mask after test even if AL Event is not enabled<br>
+<br>Changes to version V5.01:<br>
+V5.10 ESC5: Add missing swapping<br>
+V5.10 HW3: Sync1 Isr added<br>
+V5.10 HW4: Add volatile directive for direct ESC DWORD/WORD/BYTE access<br>
+           Add missing swapping in mcihw.c<br>
+           Add "volatile" directive vor dummy variables in enable and disable SyncManger functions<br>
+           Add missing swapping in EL9800hw files<br>
+<br>Changes to version V5.0:<br>
+V5.01 HW1: Invalid ESC access function was used<br>
+<br>Changes to version V4.40:<br>
+V5.0 ESC4: Save SM disable/Enable. Operation may be pending due to frame handling.<br>
+<br>Changes to version V4.30:<br>
+V4.40 : File renamed from spihw.c to el9800hw.c<br>
+<br>Changes to version V4.20:<br>
+V4.30 ESM: if mailbox Syncmanger is disabled and bMbxRunning is true the SyncManger settings need to be revalidate<br>
+V4.30 EL9800: EL9800_x hardware initialization is moved to el9800.c<br>
+V4.30 SYNC: change synchronisation control function. Add usage of 0x1C32:12 [SM missed counter].<br>
+Calculate bus cycle time (0x1C32:02 ; 0x1C33:02) CalcSMCycleTime()<br>
+V4.30 PDO: rename PDO specific functions (COE_xxMapping -> PDO_xxMapping and COE_Application -> ECAT_Application)<br>
+V4.30 ESC: change requested address in GetInterruptRegister() to prevent acknowledge events.<br>
+(e.g. reading an SM config register acknowledge SM change event)<br>
+GENERIC: renamed several variables to identify used SPI if multiple interfaces are available<br>
+V4.20 MBX 1: Add Mailbox queue support<br>
+V4.20 SPI 1: include SPI RxBuffer dummy read<br>
+V4.20 DC 1: Add Sync0 Handling<br>
+V4.20 PIC24: Add EL9800_4 (PIC24) required source code<br>
+V4.08 ECAT 3: The AlStatusCode is changed as parameter of the function AL_ControlInd<br>
+<br>Changes to version V4.02:<br>
+V4.03 SPI 1: In ISR_GetInterruptRegister the NOP-command should be used.<br>
+<br>Changes to version V4.01:<br>
+V4.02 SPI 1: In HW_OutputMapping the variable u16OldTimer shall not be set,<br>
+             otherwise the watchdog might exceed too early.<br>
+<br>Changes to version V4.00:<br>
+V4.01 SPI 1: DI and DO were changed (DI is now an input for the uC, DO is now an output for the uC)<br>
+V4.01 SPI 2: The SPI has to operate with Late-Sample = FALSE on the Eva-Board<br>
+<br>Changes to version V3.20:<br>
+V4.00 ECAT 1: The handling of the Sync Manager Parameter was included according to<br>
+              the EtherCAT Guidelines and Protocol Enhancements Specification<br>
+V4.00 APPL 1: The watchdog checking should be done by a microcontroller<br>
+                 timer because the watchdog trigger of the ESC will be reset too<br>
+                 if only a part of the sync manager data is written<br>
+V4.00 APPL 4: The EEPROM access through the ESC is added
+
+*/
+
 
 /*--------------------------------------------------------------------------------------
 ------
@@ -6,7 +67,7 @@
 --------------------------------------------------------------------------------------*/
 #include "ecat_def.h"
 #if EL9800_HW
-#include "SPI2.h"
+#include "FSMC.h"
 #include "ecatslv.h"
 
 #define    _EL9800HW_ 1
@@ -18,10 +79,11 @@
 
 #include "ecatappl.h"
 #include "sys.h"
-
-
 #include "includes.h"
-void mem_test(void);
+#include "el9800appl.h"
+#include "ads8343.h"
+#include "API.h"
+#include "DIANCIFA.h"
 /*--------------------------------------------------------------------------------------
 ------
 ------    internal Types and Defines
@@ -57,8 +119,8 @@ UALEVENT;
 ------
 -----------------------------------------------------------------------------------------*/
 
-#define 	DISABLE_GLOBAL_INT           			  __disable_irq()					
-#define 	ENABLE_GLOBAL_INT           		    __enable_irq()				
+#define DISABLE_GLOBAL_INT           			  __disable_irq()					
+#define ENABLE_GLOBAL_INT           		    __enable_irq()				
 #define    DISABLE_AL_EVENT_INT          DISABLE_GLOBAL_INT
 #define    ENABLE_AL_EVENT_INT           ENABLE_GLOBAL_INT
 
@@ -70,10 +132,10 @@ UALEVENT;
 ------
 -----------------------------------------------------------------------------------------*/
 #if AL_EVENT_ENABLED
-#define    INIT_ESC_INT           IRQ_EXTI0_Configuration();					
-#define    EcatIsr                EXTI0_IRQHandler
+#define    INIT_ESC_INT           EXTI0_Configuration();					
+#define    EcatIsr                EXTI0_IRQHandler //500Hz
 #define    ACK_ESC_INT         		EXTI_ClearITPendingBit(EXTI_Line0);  
-#define IS_ESC_INT_ACTIVE					 
+#define IS_ESC_INT_ACTIVE					((GPIO_ReadInputDataBit(GPIOC,GPIO_Pin_0)) == 0) 
 #endif //#if AL_EVENT_ENABLED
 
 
@@ -83,22 +145,22 @@ UALEVENT;
 ------
 -----------------------------------------------------------------------------------------*/
 #if DC_SUPPORTED && _STM32_IO8
-#define    INIT_SYNC0_INT                 SYNC0_EXTI1_Configuration();		
-#define    Sync0Isr                       EXTI3_IRQHandler 
-#define    DISABLE_SYNC0_INT              NVIC_DisableIRQ(EXTI3_IRQn);	 
+#define    INIT_SYNC0_INT                  EXTI1_Configuration();		
+#define    Sync0Isr                        				EXTI3_IRQHandler 
+#define    DISABLE_SYNC0_INT             NVIC_DisableIRQ(EXTI3_IRQn);	 
 #define    ENABLE_SYNC0_INT               NVIC_EnableIRQ(EXTI3_IRQn);	
 #define    ACK_SYNC0_INT                  EXTI_ClearITPendingBit(EXTI_Line3);
-#define    IS_SYNC0_INT_ACTIVE             
+#define    IS_SYNC0_INT_ACTIVE              ((GPIO_ReadInputDataBit(GPIOC,GPIO_Pin_3)) == 0) 
 
 																					
 /*ECATCHANGE_START(V5.10) HW3*/
 
-#define    INIT_SYNC1_INT                  SYNC1_EXTI2_Configuration();
-#define    Sync1Isr                        EXTI1_IRQHandler
-#define    DISABLE_SYNC1_INT               NVIC_DisableIRQ(EXTI1_IRQn);
-#define    ENABLE_SYNC1_INT                NVIC_EnableIRQ(EXTI1_IRQn); 
-#define    ACK_SYNC1_INT                   EXTI_ClearITPendingBit(EXTI_Line1);
-#define    IS_SYNC1_INT_ACTIVE              
+#define    INIT_SYNC1_INT                  EXTI2_Configuration();
+#define    Sync1Isr                        		EXTI1_IRQHandler
+#define    DISABLE_SYNC1_INT                 NVIC_DisableIRQ(EXTI1_IRQn);
+#define    ENABLE_SYNC1_INT                 NVIC_EnableIRQ(EXTI1_IRQn); 
+#define    ACK_SYNC1_INT                  	 EXTI_ClearITPendingBit(EXTI_Line1);
+#define    IS_SYNC1_INT_ACTIVE              ((GPIO_ReadInputDataBit(GPIOC,GPIO_Pin_1)) == 0) 
 
 /*ECATCHANGE_END(V5.10) HW3*/
 
@@ -118,11 +180,11 @@ UALEVENT;
 #define    ENABLE_ECAT_TIMER_INT        NVIC_EnableIRQ(TIM2_IRQn) ;	
 #define    DISABLE_ECAT_TIMER_INT       NVIC_DisableIRQ(TIM2_IRQn) ;
 
-#define INIT_ECAT_TIMER           			TIM_Configuration(10) ;   
+#define INIT_ECAT_TIMER            TIM_Configuration(10) ;   
 
-#define STOP_ECAT_TIMER            			DISABLE_ECAT_TIMER_INT;/*disable timer interrupt*/ \
+#define STOP_ECAT_TIMER            DISABLE_ECAT_TIMER_INT;/*disable timer interrupt*/ \
 
-#define START_ECAT_TIMER          			ENABLE_ECAT_TIMER_INT
+#define START_ECAT_TIMER          ENABLE_ECAT_TIMER_INT
 
 
 #else    //#if ECAT_TIMER_INT
@@ -232,48 +294,87 @@ static void ISR_GetInterruptRegister(void)
 * Input          : None
 * Output         : None
 * Return         : None
-* Attention		   : None
-* 最后修改日期   : 2020.8.8
+* Attention		 : None
 *******************************************************************************/
 void GPIO_Config(void) 
 { 
-	 GPIO_InitTypeDef GPIO_InitStructure;
-   RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA|RCC_AHB1Periph_GPIOB|RCC_AHB1Periph_GPIOC|RCC_AHB1Periph_GPIOD|RCC_AHB1Periph_GPIOE|RCC_AHB1Periph_GPIOF|RCC_AHB1Periph_GPIOG|RCC_AHB1Periph_GPIOH, ENABLE);
+//	GPIO_InitTypeDef GPIO_InitStructure;
+
+//	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOF | RCC_AHB1Periph_GPIOG, ENABLE);
+
+//	//----------------------------------------------------------------led
+////    LED_1    --- G11 
+////    LED_2    --- G9  
+////    LED_3    --- G10    
+////    LED_4    --- G8   
+////    LED_5    --- B2      
+////    LED_7    --- F12     
+////    LED_6    --- F14 
+////    LED_8    --- G0
+//	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3;
+//	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+//	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+//	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+//	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+//	GPIO_Init(GPIOD, &GPIO_InitStructure);
+//	GPIO_SetBits(GPIOD, GPIO_Pin_3);
+//	
+//	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_10 | GPIO_Pin_11;
+//	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+//	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+//	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+//	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+//	GPIO_Init(GPIOG, &GPIO_InitStructure);
+
+//	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12 | GPIO_Pin_14;
+//	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+//	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+//	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+//	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+//	GPIO_Init(GPIOF, &GPIO_InitStructure); 
+// 
+//	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;
+//	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+//	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+//	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+//	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+//	GPIO_Init(GPIOB, &GPIO_InitStructure);  	
+//	
+//	
+//	//-----------------------------------------------------------------key
+//  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_13 | GPIO_Pin_14 | GPIO_Pin_15;// KEY1
+//  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
+//  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+//  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP ;
+//  GPIO_Init(GPIOC, &GPIO_InitStructure);
+//	
+//	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4| GPIO_Pin_5 | GPIO_Pin_6| GPIO_Pin_7| GPIO_Pin_8;// KEY2
+//  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
+//  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+//  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP ;
+//  GPIO_Init(GPIOF, &GPIO_InitStructure);
 	
-	 /* configration the LED pin */	
-	 //GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable,ENABLE);
-
-   GPIO_InitStructure.GPIO_Pin =GPIO_Pin_8;  
-   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;//普通输出模式
-   GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;//推挽输出
-   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-   GPIO_ResetBits(GPIOG,GPIO_Pin_8);			
-	 GPIO_Init(GPIOG, &GPIO_InitStructure);  //暂时不知道使能哪几个pin，先放在这里。
-	
-} 
-
-
+}  
 /*
  * 描    述：LAN9252_reset
  * 功    能：复位LAN9252此芯片
  * 入口参数：无
  * 出口参数：无
- * 最后修改日期： 2020.8.8
  */ 
 void LAN9252_reset(void)// PF8为#RST
 {		
 	GPIO_InitTypeDef  GPIO_InitStructure;
 
-  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOF, ENABLE);//使能GPIOF时钟
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOF, ENABLE);
 
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;//普通输出模式
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;//推挽输出  
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
 	GPIO_Init(GPIOF, &GPIO_InitStructure); 
  
-
-	//while(1)
+ 
 	{
 		GPIO_WriteBit(GPIOF, GPIO_Pin_8, Bit_RESET);
 		Delayms_666M(1000);
@@ -290,26 +391,23 @@ void LAN9252_reset(void)// PF8为#RST
 *////////////////////////////////////////////////////////////////////////////////////////
 UINT8 HW_Init(void)
 {
-	UINT16 intMask;
+  UINT16 intMask;
 	UINT32 data;
 	/*initialize the led and switch port*/
-  GPIO_Config();
-//	LAN9252_reset();// PF8为#RST
-	/* initialize the SSP registers for the ESC SPI */
-	SPI2_GPIO_Init();
+	//GPIO_Config();
+  //LAN9252_reset();// PF8为#RST
+	FSMC_GPIO_Init();
 	
-	//mem_test();// 测试PDI接口
-	
-	/*initialize ADC configration*/
-//	ADC_Configuration();
+/*initialize ADC configration*/
+ //ADC_Configuration();
 
-	do
-	{
-			intMask = 0x0093;
-			HW_EscWriteDWord(intMask, ESC_AL_EVENTMASK_OFFSET);
-			intMask = 0;
-			HW_EscReadDWord(intMask, ESC_AL_EVENTMASK_OFFSET);
-	} while (intMask!= 0x0093);
+    do
+    {
+        intMask = 0x0093;
+        HW_EscWriteDWord(intMask, ESC_AL_EVENTMASK_OFFSET);
+        intMask = 0;
+			 HW_EscReadDWord(intMask, ESC_AL_EVENTMASK_OFFSET);
+    } while (intMask!= 0x0093);
 		
 
 		
@@ -317,16 +415,16 @@ UINT8 HW_Init(void)
     //Wrte 0x54 - 0x00000101
     data = 0x00000101;
  
-    SPIWriteDWord (0x54,data);
+    PMPWriteDWord (0x54,data);
     
 
     //Write in Interrupt Enable register -->
     //Write 0x5c - 0x00000001
     data = 0x00000001;
-    SPIWriteDWord (0x5C, data);
+    PMPWriteDWord (0x5C, data);
     
 
-    SPIReadDWord(0x58);
+    PMPReadDWord(0x58);
 
 		intMask = 0x00;
 	  
@@ -468,7 +566,7 @@ void HW_EscRead( MEM_ADDR *pData, UINT16 Address, UINT16 Len )
 
         DISABLE_AL_EVENT_INT;
 
-       SPIReadDRegister(pTmpData,Address,i);
+       PMPReadDRegister(pTmpData,Address,i);
 
       
        ENABLE_AL_EVENT_INT;
@@ -529,7 +627,7 @@ void HW_EscRead( MEM_ADDR *pData, UINT16 Address, UINT16 Len )
             }
         }
 
-        SPIReadDRegister(pTmpData, Address,i);
+        PMPReadDRegister(pTmpData, Address,i);
 
         Len -= i;
         pTmpData += i;
@@ -582,7 +680,7 @@ void HW_EscWrite( MEM_ADDR *pData, UINT16 Address, UINT16 Len )
        
         /* start transmission */
 
-        SPIWriteRegister(pTmpData, Address, i);
+        PMPWriteRegister(pTmpData, Address, i);
 
 
         ENABLE_AL_EVENT_INT;
@@ -643,7 +741,7 @@ void HW_EscWriteIsr( MEM_ADDR *pData, UINT16 Address, UINT16 Len )
        /* start transmission */
 
 
-       SPIWriteRegister(pTmpData, Address, i);
+       PMPWriteRegister(pTmpData, Address, i);
 
        
        /* next address */
@@ -653,55 +751,148 @@ void HW_EscWriteIsr( MEM_ADDR *pData, UINT16 Address, UINT16 Len )
     }
 
 }
+/*******************************************************************************
+  Function:
+    void __attribute__ ((__interrupt__, no_auto_psv)) EscIsr(void)
 
-#endif
+  Summary:
+    Interrupt service routine for the PDI interrupt from the EtherCAT Slave Controller
 
-/*
- * 描述:  EcatIsr
- * 功能:  IRQ中断服务函数
- * 入口:  无
- * 出口:  无
- */
+  *****************************************************************************/
+int count1=0,count2=0,count3=0,count4=0;
+int second_count=0;
+int diancifa_time1=0,diancifa_time2=0,diancifa_time3=0,diancifa_time4=0;
+int diancifa_state1=0,diancifa_state2=0,diancifa_state3=0,diancifa_state4=0;
+extern float CH1_current,CH2_current,CH3_current,CH4_current;
+extern TOBJ6010 AD_Switch_Status_OUT;
+extern TOBJ6000 AD_Inputs;
 void  EcatIsr(void)
-{
-   PDI_Isr();
+{		 
 
+   PDI_Isr();
+	 count1++;
+		if (count1>1000/AD_Switch_Status_OUT.CH1_Frequency){
+			float temp = (float)(read(0,SINGLE))/163.4;
+			if (temp<20) CH1_current=temp;//做一下范围检查
+			AD_Inputs.CH1=A2X(CH1_current);
+			count1=0;
+		}
+		
+		count2++;
+		if (count2>1000/AD_Switch_Status_OUT.CH2_Frequency){
+			float temp = (float)(read(1,SINGLE))/163.6;
+			if (temp<20) CH2_current=temp;//做一下范围检查
+			AD_Inputs.CH2=A2X(CH2_current);
+			count2=0;
+		}
+		
+		count3++;
+		if (count3>1000/AD_Switch_Status_OUT.CH3_Frequency){
+			float temp = (float)(read(2,SINGLE))/163.4;
+			if (temp<20) CH3_current=temp;//做一下范围检查
+			AD_Inputs.CH3=A2X(CH3_current);
+			count3=0;
+		}
+		
+		count4++;
+		if (count4>1000/AD_Switch_Status_OUT.CH4_Frequency){
+			float temp = (float)(read(1,SINGLE))/165;
+			if (temp<20) CH4_current=temp;//做一下范围检查
+			AD_Inputs.CH4=A2X(CH4_current);
+			count4=0;
+		}
    /* reset the interrupt flag */
+		
+	  second_count++;
+		if (second_count>1000){
+			//每一秒钟进入该循环查询更新一次电磁阀状态。
+			second_count=0;
+			Diancifa_STATUS_6030.diancifa1_Time++;
+			Diancifa_STATUS_6030.diancifa2_Time++;
+			Diancifa_STATUS_6030.diancifa3_Time++;
+			Diancifa_STATUS_6030.diancifa4_Time++;
+		}
+		
+		if (Diancifa_STATUS_6030.diancifa1_Time>Diancifa_cmd.diancifa1_time){
+			if (diancifa_state1!=Diancifa_cmd.diancifa1){
+				diancifa_state1=Diancifa_cmd.diancifa1;
+				RELAY1=Diancifa_cmd.diancifa1;
+				Diancifa_STATUS_6030.diancifa1_Time=0;
+			}
+		}
+		
+		if (Diancifa_STATUS_6030.diancifa2_Time>Diancifa_cmd.diancifa2_time){
+			if (diancifa_state2!=Diancifa_cmd.diancifa2){
+				diancifa_state2=Diancifa_cmd.diancifa2;
+				RELAY2=Diancifa_cmd.diancifa2;
+				Diancifa_STATUS_6030.diancifa2_Time=0;
+			}
+		}
+		if (Diancifa_STATUS_6030.diancifa3_Time>Diancifa_cmd.diancifa3_time){
+			if (diancifa_state3!=Diancifa_cmd.diancifa3){
+				diancifa_state3=Diancifa_cmd.diancifa3;
+				RELAY3=Diancifa_cmd.diancifa3;
+				Diancifa_STATUS_6030.diancifa3_Time=0;
+			}
+		}
+		if (Diancifa_STATUS_6030.diancifa4_Time>Diancifa_cmd.diancifa4_time){
+			if (diancifa_state4!=Diancifa_cmd.diancifa4){
+				diancifa_state4=Diancifa_cmd.diancifa4;
+				RELAY4=Diancifa_cmd.diancifa4;
+				Diancifa_STATUS_6030.diancifa4_Time=0;
+			}
+		}
+		
+		Diancifa_STATUS_6030.diancifa1_STATE=FBO1;
+		Diancifa_STATUS_6030.diancifa2_STATE=FBO2;
+		Diancifa_STATUS_6030.diancifa3_STATE=FBO3;
+		Diancifa_STATUS_6030.diancifa4_STATE=FBO4;
    ACK_ESC_INT;
 	
-
+		
 }
 #endif     // AL_EVENT_ENABLED
 
 
 
+
+
+
+
 #if DC_SUPPORTED&& _STM32_IO8
-/*
- * 描述:  Sync0Isr
- * 功能:  SYNC0中断服务函数
- * 入口:  无
- * 出口:  无
- */
+/////////////////////////////////////////////////////////////////////////////////////////
+/**
+ \brief    Interrupt service routine for the interrupts from SYNC0
+*////////////////////////////////////////////////////////////////////////////////////////
+
 void Sync0Isr(void)
 {
-
+  DISABLE_ESC_INT();
+    
    Sync0_Isr();
-
+   
+   /* reset the interrupt flag */
    ACK_SYNC0_INT;
+   ENABLE_ESC_INT();
 
+
+	
 }
 /*ECATCHANGE_START(V5.10) HW3*/
-/*
- * 描述:  Sync1Isr
- * 功能:  SYNC1中断服务函数
- * 入口:  无
- * 出口:  无
- */
+/////////////////////////////////////////////////////////////////////////////////////////
+/**
+ \brief    Interrupt service routine for the interrupts from SYNC1
+*////////////////////////////////////////////////////////////////////////////////////////
+
 void Sync1Isr(void)
 {	
+	
    DISABLE_ESC_INT();
    Sync1_Isr();
-	 ACK_SYNC1_INT;
+   
+    /* reset the interrupt flag */
+    ACK_SYNC1_INT;
+
    ENABLE_ESC_INT();
 
 }
@@ -709,24 +900,18 @@ void Sync1Isr(void)
 #endif
 
 #if _STM32_IO8 && ECAT_TIMER_INT
-
-/*
- * 描述:  TimerIsr
- * 功能:  timer中断服务函数---定时1ms---2000个ticks
- * 入口:  无
- * 出口:  无
- */
+// Timer 2 ISR (0.1ms)
 void TimerIsr(void)
 {		
-		ECAT_CheckTimer();
+		  ECAT_CheckTimer();
 
-		ECAT_TIMER_ACK_INT;
+			ECAT_TIMER_ACK_INT;
 	
 }
 
 #endif
 
-//#endif //#if EL9800_HW
+#endif //#if EL9800_HW
 /** @} */
 
 

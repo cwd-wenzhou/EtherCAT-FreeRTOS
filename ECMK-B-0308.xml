@@ -5,34 +5,22 @@
     <Name>ACTI</Name>
     <ImageData16x14>424DD6020000000000003600000028000000100000000E000000010018000000000000000000C30E0000C30E00000000000000000000FFFFFFFFE4DFFC6045FE9F90FEA091FC5B43FC5C3CFC5337FD7B65FEBBAEFC5542FECCC3FFEBE7FC5C43FE9D8CFFFFFFFFFFFFFFDDD5FB1F00FD7C65FD7C65FB1900FB421DFB3E22FC6C55FDA593FB0D00FEBBAFFFE6E2FB1A00FD785EFFFFFFFFFFFFFFDED7FB2A01FD826CFD7D66FB2D05FFDED7FFFAF8FFFBF9FDAF9EFB1500FEBEB2FFE7E3FB2500FD7E65FFFFFFFFFFFFFFDED7FB2A01FD826CFD7D66FB2C04FFE5DFFFFFFFFFFFFFFDB09FFB1500FEBEB2FFE7E3FB2500FD7E65FFFFFFFFFFFFFFDED7FB2A01FD826CFD7D66FB2C04FFEAE4FFFFFFFFFFFFFDB09FFB1500FEBEB2FFE5E1FB1700FD765EFFFFFFFFFFFFFFDED7FB2A01FD826CFD7E66FB2D04FEC5B9FED9D2FEE2DDFDAD9CFB1600FEB9ADFFF3F1FD8B78FEB7AAFFFEFEFFFFFFFFDED7FB2A01FD836DFD7A64FB1700FB2F07FB2405FC5A42FDAE9CFB1800FEC0B5FFF7F6FD6B57FEA89AFFFFFFFFFFFFFFDED7FB2A01FD7D66FDB3A7FC6951FC5F40FC5B3FFD7D67FD9B86FB1C00FDAA9AFFD2CAFC5035FD8B78FFFBF9FFFFFFFFDED7FB2900FC765EFFFFFFFEAEA1FB280EFB3912FB3F1AFB380CFB2A00FB2800FB2D04FB310FFB4323FFE9E3FFFFFFFFDED7FB2900FC775FFFFFFFFEBFB5FC6A55FD7E67FC4923FB1E00FB360FFC735AFC735AFC6F57FC7E68FFEFEBFFFFFFFFDED7FB2800FC7C65FFFFFFFFFFFFFFFFFFFEC2B7FB3213FB290AFEB8ACFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFFFFDED7FB2E04FC5A3CFDAE9FFDAD9EFD9B88FB2C07FB2707FEBAACFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFDDD7FB2F09FB1C00FB1800FB1800FB1600FB2000FEB1A2FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEEEBFEB7ABFEB6A8FEB7AAFEB7AAFEB6A8FEBAADFFF8F7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF</ImageData16x14>
 
-
-
-
-
-
-
   </Vendor>
   <Descriptions>
     <Groups>
       <Group SortOrder="0">
         <Type>ECAT-EVB</Type>
-        <Name LcId="1031">ECAT-EVB</Name>
+        <Name LcId="1031">ECMK-B</Name>
         <Name LcId="1033">ECAT-EVB</Name>
         <ImageData16x14>424DD6020000000000003600000028000000100000000E000000010018000000000000000000C30E0000C30E00000000000000000000FFFFFFFFE4DFFC6045FE9F90FEA091FC5B43FC5C3CFC5337FD7B65FEBBAEFC5542FECCC3FFEBE7FC5C43FE9D8CFFFFFFFFFFFFFFDDD5FB1F00FD7C65FD7C65FB1900FB421DFB3E22FC6C55FDA593FB0D00FEBBAFFFE6E2FB1A00FD785EFFFFFFFFFFFFFFDED7FB2A01FD826CFD7D66FB2D05FFDED7FFFAF8FFFBF9FDAF9EFB1500FEBEB2FFE7E3FB2500FD7E65FFFFFFFFFFFFFFDED7FB2A01FD826CFD7D66FB2C04FFE5DFFFFFFFFFFFFFFDB09FFB1500FEBEB2FFE7E3FB2500FD7E65FFFFFFFFFFFFFFDED7FB2A01FD826CFD7D66FB2C04FFEAE4FFFFFFFFFFFFFDB09FFB1500FEBEB2FFE5E1FB1700FD765EFFFFFFFFFFFFFFDED7FB2A01FD826CFD7E66FB2D04FEC5B9FED9D2FEE2DDFDAD9CFB1600FEB9ADFFF3F1FD8B78FEB7AAFFFEFEFFFFFFFFDED7FB2A01FD836DFD7A64FB1700FB2F07FB2405FC5A42FDAE9CFB1800FEC0B5FFF7F6FD6B57FEA89AFFFFFFFFFFFFFFDED7FB2A01FD7D66FDB3A7FC6951FC5F40FC5B3FFD7D67FD9B86FB1C00FDAA9AFFD2CAFC5035FD8B78FFFBF9FFFFFFFFDED7FB2900FC765EFFFFFFFEAEA1FB280EFB3912FB3F1AFB380CFB2A00FB2800FB2D04FB310FFB4323FFE9E3FFFFFFFFDED7FB2900FC775FFFFFFFFEBFB5FC6A55FD7E67FC4923FB1E00FB360FFC735AFC735AFC6F57FC7E68FFEFEBFFFFFFFFDED7FB2800FC7C65FFFFFFFFFFFFFFFFFFFEC2B7FB3213FB290AFEB8ACFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFFFFDED7FB2E04FC5A3CFDAE9FFDAD9EFD9B88FB2C07FB2707FEBAACFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFDDD7FB2F09FB1C00FB1800FB1800FB1600FB2000FEB1A2FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEEEBFEB7ABFEB6A8FEB7AAFEB7AAFEB6A8FEBAADFFF8F7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF</ImageData16x14>
-
-
-
-
-
-
 
       </Group>
     </Groups>
     <Devices>
       <Device Physics="YY">
-        <Type ProductCode="#x00009252" RevisionNo="#x1">LAN9252-EVB-SPI</Type>
-        <Name LcId="1033">LAN9252-EVB-SPI</Name>
-        <Name LcId="1031">LAN9252-EVB-SPI</Name>
+        <Type ProductCode="#x00009252" RevisionNo="#x1">ECMK-B</Type>
+        <Name LcId="1033">ECMK-B</Name>
+        <Name LcId="1031">ECMK-B</Name>
         <Info>
           <StateMachine>
             <Timeout>
@@ -2276,26 +2264,26 @@
         <Sm DefaultSize="6" StartAddress="#x1400" ControlByte="#x20" Enable="1">Inputs</Sm>
         <RxPdo Mandatory="true" Fixed="true" Sm="2">
           <Index>#x1601</Index>
-          <Name>DO Outputs</Name>
+          <Name>AD_Switch_Cmd</Name>
           <Entry>
             <Index>#x7010</Index>
             <SubIndex>1</SubIndex>
             <BitLen>1</BitLen>
-            <Name>LED 1</Name>
+            <Name>CH1_Enable</Name>
             <DataType>BOOL</DataType>
           </Entry>
           <Entry>
             <Index>#x7010</Index>
             <SubIndex>2</SubIndex>
             <BitLen>1</BitLen>
-            <Name>LED 2</Name>
+            <Name>CH2_Enable</Name>
             <DataType>BOOL</DataType>
           </Entry>
           <Entry>
             <Index>#x7010</Index>
             <SubIndex>3</SubIndex>
             <BitLen>1</BitLen>
-            <Name>LED 3</Name>
+            <Name>CH3_Enable</Name>
             <DataType>BOOL</DataType>
           </Entry>
           
@@ -2303,209 +2291,402 @@
             <Index>#x7010</Index>
             <SubIndex>4</SubIndex>
             <BitLen>1</BitLen>
-            <Name>LED 4</Name>
+            <Name>CH4_Enable</Name>
             <DataType>BOOL</DataType>
+          </Entry>
+          <Entry>
+            <Index>#x0</Index>
+            <SubIndex>0</SubIndex>
+            <BitLen>12</BitLen>
           </Entry>
           <Entry>
             <Index>#x7010</Index>
             <SubIndex>5</SubIndex>
-            <BitLen>1</BitLen>
-            <Name>LED 5</Name>
-            <DataType>BOOL</DataType>
+            <BitLen>16</BitLen>
+            <Name>CH1_Frequency</Name>
+            <DataType>UINT</DataType>
           </Entry>
           <Entry>
             <Index>#x7010</Index>
             <SubIndex>6</SubIndex>
-            <BitLen>1</BitLen>
-            <Name>LED 6</Name>
-            <DataType>BOOL</DataType>
+            <BitLen>16</BitLen>
+            <Name>CH2_Frequency</Name>
+            <DataType>UINT</DataType>
           </Entry>
           <Entry>
             <Index>#x7010</Index>
             <SubIndex>7</SubIndex>
-            <BitLen>1</BitLen>
-            <Name>LED 7</Name>
-            <DataType>BOOL</DataType>
+            <BitLen>16</BitLen>
+            <Name>CH3_Frequency</Name>
+            <DataType>UINT</DataType>
           </Entry>
           <Entry>
             <Index>#x7010</Index>
             <SubIndex>8</SubIndex>
-            <BitLen>1</BitLen>
-            <Name>LED 8</Name>
-            <DataType>BOOL</DataType>
+            <BitLen>16</BitLen>
+            <Name>CH4_Frequency</Name>
+            <DataType>UINT</DataType>
           </Entry>
-          <Entry>
-              <Index>#x0</Index>
-              <SubIndex>0</SubIndex>
-              <BitLen>8</BitLen>
-          </Entry>
-          <Entry>
-            <Index>#x7011</Index>
-            <SubIndex>0</SubIndex>
-            <BitLen>32</BitLen>
-            <Name>Var0x7011</Name>
-            <DataType>UDINT</DataType>
-          </Entry>
-        </RxPdo>
+        </RxPdo>      
+
         <RxPdo Mandatory="true" Fixed="true" Sm="2">
           <Index>#x1602</Index>
-          <Name>test-Outputs</Name>
+          <Name>Diancifa_Cmd</Name>
           <Entry>
             <Index>#x7012</Index>
             <SubIndex>1</SubIndex>
             <BitLen>1</BitLen>
-            <Name>TEST 1</Name>
+            <Name>diancifa_1</Name>
             <DataType>BOOL</DataType>
           </Entry>
           <Entry>
             <Index>#x7012</Index>
             <SubIndex>2</SubIndex>
             <BitLen>1</BitLen>
-            <Name>TEST 2</Name>
+            <Name>diancifa_2</Name>
             <DataType>BOOL</DataType>
           </Entry>
           <Entry>
             <Index>#x7012</Index>
             <SubIndex>3</SubIndex>
             <BitLen>1</BitLen>
-            <Name>TEST 3</Name>
+            <Name>diancifa_3</Name>
             <DataType>BOOL</DataType>
           </Entry>
           <Entry>
             <Index>#x7012</Index>
             <SubIndex>4</SubIndex>
             <BitLen>1</BitLen>
-            <Name>TEST 4</Name>
+            <Name>diancifa_4</Name>
             <DataType>BOOL</DataType>
+          </Entry>
+          <Entry>
+            <Index>#x0</Index>
+            <SubIndex>0</SubIndex>
+            <BitLen>12</BitLen>
           </Entry>
           <Entry>
             <Index>#x7012</Index>
             <SubIndex>5</SubIndex>
-            <BitLen>1</BitLen>
-            <Name>TEST 5</Name>
-            <DataType>BOOL</DataType>
+            <BitLen>16</BitLen>
+            <Name>Diancifa1_Time</Name>
+            <DataType>UINT</DataType>
           </Entry>
           <Entry>
             <Index>#x7012</Index>
             <SubIndex>6</SubIndex>
-            <BitLen>1</BitLen>
-            <Name>TEST 6</Name>
-            <DataType>BOOL</DataType>
+            <BitLen>16</BitLen>
+            <Name>Diancifa2_Time</Name>
+            <DataType>UINT</DataType>
           </Entry>
           <Entry>
             <Index>#x7012</Index>
             <SubIndex>7</SubIndex>
-            <BitLen>1</BitLen>
-            <Name>TEST 7</Name>
-            <DataType>BOOL</DataType>
+            <BitLen>16</BitLen>
+            <Name>Diancifa3_Time</Name>
+            <DataType>UINT</DataType>
           </Entry>
           <Entry>
             <Index>#x7012</Index>
             <SubIndex>8</SubIndex>
-            <BitLen>1</BitLen>
-            <Name>TEST 8</Name>
-            <DataType>BOOL</DataType>
-          </Entry>
-          <Entry>
-            <Index>#x0</Index>
-            <SubIndex>0</SubIndex>
-            <BitLen>8</BitLen>
-          </Entry>
-          
+            <BitLen>16</BitLen>
+            <Name>Diancifa4_Time</Name>
+            <DataType>UINT</DataType>
+          </Entry> 
         </RxPdo>
+        
         <TxPdo Mandatory="true" Fixed="true" Sm="3">
           <Index>#x1a00</Index>
-          <Name>DI Inputs</Name>
+          <Name>Displacement Inputs</Name>
           <Entry>
             <Index>#x6000</Index>
             <SubIndex>1</SubIndex>
             <BitLen>16</BitLen>
-            <Name>CH1</Name>
+            <Name>CH1_Displacement</Name>
             <DataType>UINT</DataType>
           </Entry>
           <Entry>
             <Index>#x6000</Index>
             <SubIndex>2</SubIndex>
             <BitLen>16</BitLen>
-            <Name>CH2</Name>
+            <Name>CH2_Displacement</Name>
             <DataType>UINT</DataType>
           </Entry>
           <Entry>
             <Index>#x6000</Index>
             <SubIndex>3</SubIndex>
             <BitLen>16</BitLen>
-            <Name>CH3</Name>
+            <Name>CH3_Displacement</Name>
             <DataType>UINT</DataType>
           </Entry>
           <Entry>
             <Index>#x6000</Index>
             <SubIndex>4</SubIndex>
             <BitLen>16</BitLen>
-            <Name>CH4</Name>
+            <Name>CH4_Displacement</Name>
             <DataType>UINT</DataType>
           </Entry>
-          
-          
-          
-          
-          
         </TxPdo>
+
+        
         <TxPdo Mandatory="true" Fixed="true" Sm="3">
-          <Index>#x1a02</Index>
-          <Name>AI Inputs</Name>
+          <Index>#x1a01</Index>
+          <Name>AD_Switch_Status</Name>
           <Entry>
-            <Index>#x6020</Index>
+            <Index>#x6010</Index>
             <SubIndex>1</SubIndex>
             <BitLen>1</BitLen>
-            <Name>Underrange</Name>
+            <Name>CH1_Enable</Name>
             <DataType>BOOL</DataType>
           </Entry>
           <Entry>
-            <Index>#x6020</Index>
+            <Index>#x6010</Index>
             <SubIndex>2</SubIndex>
             <BitLen>1</BitLen>
-            <Name>Overrange</Name>
+            <Name>CH2_Enable</Name>
             <DataType>BOOL</DataType>
           </Entry>
           <Entry>
-            <Index>#x6020</Index>
+            <Index>#x6010</Index>
             <SubIndex>3</SubIndex>
-            <BitLen>2</BitLen>
-            <Name>Limit 1</Name>
-            <DataType>BIT2</DataType>
+            <BitLen>1</BitLen>
+            <Name>CH3_Enable</Name>
+            <DataType>BOOL</DataType>
+          </Entry>
+          
+          <Entry>
+            <Index>#x6010</Index>
+            <SubIndex>4</SubIndex>
+            <BitLen>1</BitLen>
+            <Name>CH4_Enable</Name>
+            <DataType>BOOL</DataType>
           </Entry>
           <Entry>
-            <Index>#x6020</Index>
+            <Index>#x0</Index>
+            <SubIndex>0</SubIndex>
+            <BitLen>12</BitLen>
+          </Entry>
+          <Entry>
+            <Index>#x6010</Index>
             <SubIndex>5</SubIndex>
-            <BitLen>2</BitLen>
-            <Name>Limit 2</Name>
-            <DataType>BIT2</DataType>
+            <BitLen>16</BitLen>
+            <Name>CH1_Frequency</Name>
+            <DataType>UINT</DataType>
+          </Entry>
+          <Entry>
+            <Index>#x6010</Index>
+            <SubIndex>6</SubIndex>
+            <BitLen>16</BitLen>
+            <Name>CH2_Frequency</Name>
+            <DataType>UINT</DataType>
+          </Entry>
+          <Entry>
+            <Index>#x6010</Index>
+            <SubIndex>7</SubIndex>
+            <BitLen>16</BitLen>
+            <Name>CH3_Frequency</Name>
+            <DataType>UINT</DataType>
+          </Entry>
+          <Entry>
+            <Index>#x6010</Index>
+            <SubIndex>8</SubIndex>
+            <BitLen>16</BitLen>
+            <Name>CH4_Frequency</Name>
+            <DataType>UINT</DataType>
+          </Entry>
+        </TxPdo>
+
+        <TxPdo Mandatory="true" Fixed="true" Sm="3">
+          <Index>#x1a03</Index>
+          <Name>Diancifa_Status</Name>
+          <Entry>
+            <Index>#x6030</Index>
+            <SubIndex>1</SubIndex>
+            <BitLen>1</BitLen>
+            <Name>diancifa_1</Name>
+            <DataType>BOOL</DataType>
+          </Entry>
+          <Entry>
+            <Index>#x6030</Index>
+            <SubIndex>2</SubIndex>
+            <BitLen>1</BitLen>
+            <Name>diancifa_2</Name>
+            <DataType>BOOL</DataType>
+          </Entry>
+          <Entry>
+            <Index>#x6030</Index>
+            <SubIndex>3</SubIndex>
+            <BitLen>1</BitLen>
+            <Name>diancifa_3</Name>
+            <DataType>BOOL</DataType>
+          </Entry>
+          <Entry>
+            <Index>#x6030</Index>
+            <SubIndex>4</SubIndex>
+            <BitLen>1</BitLen>
+            <Name>diancifa_4</Name>
+            <DataType>BOOL</DataType>
+          </Entry>
+          <Entry>
+            <Index>#x0</Index>
+            <SubIndex>0</SubIndex>
+            <BitLen>12</BitLen>
+          </Entry>
+          <Entry>
+            <Index>#x6030</Index>
+            <SubIndex>5</SubIndex>
+            <BitLen>16</BitLen>
+            <Name>Diancifa1_Time</Name>
+            <DataType>UINT</DataType>
+          </Entry>
+          <Entry>
+            <Index>#x6030</Index>
+            <SubIndex>6</SubIndex>
+            <BitLen>16</BitLen>
+            <Name>Diancifa2_Time</Name>
+            <DataType>UINT</DataType>
+          </Entry>
+          <Entry>
+            <Index>#x6030</Index>
+            <SubIndex>7</SubIndex>
+            <BitLen>16</BitLen>
+            <Name>Diancifa3_Time</Name>
+            <DataType>UINT</DataType>
+          </Entry>
+          <Entry>
+            <Index>#x6030</Index>
+            <SubIndex>8</SubIndex>
+            <BitLen>16</BitLen>
+            <Name>Diancifa4_Time</Name>
+            <DataType>UINT</DataType>
+          </Entry>
+        </TxPdo>
+        
+        
+        <TxPdo Mandatory="true" Fixed="true" Sm="3">
+          <Index>#x1a04</Index>
+          <Name>Self_Check_Status</Name>
+          <Entry>
+            <Index>#x6040</Index>
+            <SubIndex>1</SubIndex>
+            <BitLen>1</BitLen>
+            <Name>CH1_STATE</Name>
+            <DataType>BOOL</DataType>
+          </Entry>
+          <Entry>
+            <Index>#x6040</Index>
+            <SubIndex>2</SubIndex>
+            <BitLen>1</BitLen>
+            <Name>CH2_STATE</Name>
+            <DataType>BOOL</DataType>
+          </Entry>
+          <Entry>
+            <Index>#x6040</Index>
+            <SubIndex>3</SubIndex>
+            <BitLen>1</BitLen>
+            <Name>CH3_STATE</Name>
+            <DataType>BOOL</DataType>
+          </Entry>
+          <Entry>
+            <Index>#x6040</Index>
+            <SubIndex>4</SubIndex>
+            <BitLen>1</BitLen>
+            <Name>CH4_STATE</Name>
+            <DataType>BOOL</DataType>
+          </Entry>
+          <Entry>
+            <Index>#x6040</Index>
+            <SubIndex>5</SubIndex>
+            <BitLen>1</BitLen>
+            <Name>Software_STATE</Name>
+            <DataType>BOOL</DataType>
+          </Entry>
+          <Entry>
+            <Index>#x6040</Index>
+            <SubIndex>6</SubIndex>
+            <BitLen>1</BitLen>
+            <Name>Hardware_STATE</Name>
+            <DataType>BOOL</DataType>
+          </Entry>
+          <Entry>
+            <Index>#x6040</Index>
+            <SubIndex>7</SubIndex>
+            <BitLen>1</BitLen>
+            <Name>EtherCAT_STATE</Name>
+            <DataType>BOOL</DataType>
+          </Entry>
+          <Entry>
+            <Index>#x6040</Index>
+            <SubIndex>8</SubIndex>
+            <BitLen>1</BitLen>
+            <Name>ALL_STATUS</Name>
+            <DataType>BOOL</DataType>
           </Entry>
           <Entry>
             <Index>#x0</Index>
             <SubIndex>0</SubIndex>
             <BitLen>8</BitLen>
           </Entry>
+        </TxPdo>
+        
+         <TxPdo Mandatory="true" Fixed="true" Sm="3">
+          <Index>#x1a05</Index>
+          <Name>Product_Info_Query</Name>
           <Entry>
-            <Index>#x1802</Index>
-            <SubIndex>7</SubIndex>
-            <BitLen>1</BitLen>
-            <Name>TxPDO State</Name>
-            <DataType>BOOL</DataType>
+            <Index>#x6050</Index>
+            <SubIndex>1</SubIndex>
+            <BitLen>48</BitLen>
+            <Name>Product_Name</Name>
+            <DataType>STRING(5)</DataType>
           </Entry>
           <Entry>
-            <Index>#x1802</Index>
-            <SubIndex>9</SubIndex>
-            <BitLen>1</BitLen>
-            <Name>TxPDO Toggle</Name>
-            <DataType>BOOL</DataType>
-          </Entry>424DD6020000000000003600000028000000100000000E000000010018000000000000000000C30E0000C30E00000000000000000000FFFFFFFFE4DFFC6045FE9F90FEA091FC5B43FC5C3CFC5337FD7B65FEBBAEFC5542FECCC3FFEBE7FC5C43FE9D8CFFFFFFFFFFFFFFDDD5FB1F00FD7C65FD7C65FB1900FB421DFB3E22FC6C55FDA593FB0D00FEBBAFFFE6E2FB1A00FD785EFFFFFFFFFFFFFFDED7FB2A01FD826CFD7D66FB2D05FFDED7FFFAF8FFFBF9FDAF9EFB1500FEBEB2FFE7E3FB2500FD7E65FFFFFFFFFFFFFFDED7FB2A01FD826CFD7D66FB2C04FFE5DFFFFFFFFFFFFFFDB09FFB1500FEBEB2FFE7E3FB2500FD7E65FFFFFFFFFFFFFFDED7FB2A01FD826CFD7D66FB2C04FFEAE4FFFFFFFFFFFFFDB09FFB1500FEBEB2FFE5E1FB1700FD765EFFFFFFFFFFFFFFDED7FB2A01FD826CFD7E66FB2D04FEC5B9FED9D2FEE2DDFDAD9CFB1600FEB9ADFFF3F1FD8B78FEB7AAFFFEFEFFFFFFFFDED7FB2A01FD836DFD7A64FB1700FB2F07FB2405FC5A42FDAE9CFB1800FEC0B5FFF7F6FD6B57FEA89AFFFFFFFFFFFFFFDED7FB2A01FD7D66FDB3A7FC6951FC5F40FC5B3FFD7D67FD9B86FB1C00FDAA9AFFD2CAFC5035FD8B78FFFBF9FFFFFFFFDED7FB2900FC765EFFFFFFFEAEA1FB280EFB3912FB3F1AFB380CFB2A00FB2800FB2D04FB310FFB4323FFE9E3FFFFFFFFDED7FB2900FC775FFFFFFFFEBFB5FC6A55FD7E67FC4923FB1E00FB360FFC735AFC735AFC6F57FC7E68FFEFEBFFFFFFFFDED7FB2800FC7C65FFFFFFFFFFFFFFFFFFFEC2B7FB3213FB290AFEB8ACFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFFFFDED7FB2E04FC5A3CFDAE9FFDAD9EFD9B88FB2C07FB2707FEBAACFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFDDD7FB2F09FB1C00FB1800FB1800FB1600FB2000FEB1A2FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEEEBFEB7ABFEB6A8FEB7AAFEB7AAFEB6A8FEBAADFFF8F7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            <Index>#x6050</Index>
+            <SubIndex>2</SubIndex>
+            <BitLen>32</BitLen>
+            <Name>Hardware_Version</Name>
+            <DataType>STRING(3)</DataType>
+          </Entry>
           <Entry>
-            <Index>#x6020</Index>
-            <SubIndex>11</SubIndex>
+            <Index>#x6050</Index>
+            <SubIndex>3</SubIndex>
+            <BitLen>32</BitLen>
+            <Name>Software_Version</Name>
+            <DataType>STRING(3)</DataType>
+          </Entry>
+          <Entry>
+            <Index>#x6050</Index>
+            <SubIndex>4</SubIndex>
             <BitLen>16</BitLen>
-            <Name>Analog input</Name>
-            <DataType>INT</DataType>
+            <Name>UID</Name>
+            <DataType>UINT</DataType>
+          </Entry>
+          <Entry>
+            <Index>#x6050</Index>
+            <SubIndex>5</SubIndex>
+            <BitLen>32</BitLen>
+            <Name>manufacture_ID</Name>
+            <DataType>UDINT</DataType>
+          </Entry>
+          <Entry>
+            <Index>#x6050</Index>
+            <SubIndex>6</SubIndex>
+            <BitLen>32</BitLen>
+            <Name>product_ID</Name>
+            <DataType>UDINT</DataType>
+          </Entry>
+          <Entry>
+            <Index>#x6050</Index>
+            <SubIndex>7</SubIndex>
+            <BitLen>32</BitLen>
+            <Name>version_ID</Name>
+            <DataType>UDINT</DataType>
+          </Entry>
+          <Entry>
+            <Index>#x6050</Index>
+            <SubIndex>8</SubIndex>
+            <BitLen>32</BitLen>
+            <Name>num_ID</Name>
+            <DataType>UDINT</DataType>
           </Entry>
         </TxPdo>
         <Mailbox DataLinkLayer="true">
@@ -2531,26 +2712,10 @@
         </Dc>
         <Eeprom>
           <ByteSize>2048</ByteSize>
-          <ConfigData>800E00CC8813f000000000800000</ConfigData>
+          <ConfigData>890E80CC88130000000000800000</ConfigData>
         </Eeprom>
         <ImageData16x14>424DD6020000000000003600000028000000100000000E000000010018000000000000000000C30E0000C30E00000000000000000000FFFFFFFFE4DFFC6045FE9F90FEA091FC5B43FC5C3CFC5337FD7B65FEBBAEFC5542FECCC3FFEBE7FC5C43FE9D8CFFFFFFFFFFFFFFDDD5FB1F00FD7C65FD7C65FB1900FB421DFB3E22FC6C55FDA593FB0D00FEBBAFFFE6E2FB1A00FD785EFFFFFFFFFFFFFFDED7FB2A01FD826CFD7D66FB2D05FFDED7FFFAF8FFFBF9FDAF9EFB1500FEBEB2FFE7E3FB2500FD7E65FFFFFFFFFFFFFFDED7FB2A01FD826CFD7D66FB2C04FFE5DFFFFFFFFFFFFFFDB09FFB1500FEBEB2FFE7E3FB2500FD7E65FFFFFFFFFFFFFFDED7FB2A01FD826CFD7D66FB2C04FFEAE4FFFFFFFFFFFFFDB09FFB1500FEBEB2FFE5E1FB1700FD765EFFFFFFFFFFFFFFDED7FB2A01FD826CFD7E66FB2D04FEC5B9FED9D2FEE2DDFDAD9CFB1600FEB9ADFFF3F1FD8B78FEB7AAFFFEFEFFFFFFFFDED7FB2A01FD836DFD7A64FB1700FB2F07FB2405FC5A42FDAE9CFB1800FEC0B5FFF7F6FD6B57FEA89AFFFFFFFFFFFFFFDED7FB2A01FD7D66FDB3A7FC6951FC5F40FC5B3FFD7D67FD9B86FB1C00FDAA9AFFD2CAFC5035FD8B78FFFBF9FFFFFFFFDED7FB2900FC765EFFFFFFFEAEA1FB280EFB3912FB3F1AFB380CFB2A00FB2800FB2D04FB310FFB4323FFE9E3FFFFFFFFDED7FB2900FC775FFFFFFFFEBFB5FC6A55FD7E67FC4923FB1E00FB360FFC735AFC735AFC6F57FC7E68FFEFEBFFFFFFFFDED7FB2800FC7C65FFFFFFFFFFFFFFFFFFFEC2B7FB3213FB290AFEB8ACFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFFFFDED7FB2E04FC5A3CFDAE9FFDAD9EFD9B88FB2C07FB2707FEBAACFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFDDD7FB2F09FB1C00FB1800FB1800FB1600FB2000FEB1A2FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEEEBFEB7ABFEB6A8FEB7AAFEB7AAFEB6A8FEBAADFFF8F7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF</ImageData16x14>
-
-
-
-
-
-
-
-
       </Device>
     </Devices>
   </Descriptions>
 </EtherCATInfo>
-
-
-
-
-
-
-
-

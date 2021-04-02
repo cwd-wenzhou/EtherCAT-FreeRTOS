@@ -2,8 +2,12 @@
 ..\obj\el9800appl.o: ..\Ethercat\Inc\ecat_def.h
 ..\obj\el9800appl.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
 ..\obj\el9800appl.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
-..\obj\el9800appl.o: ..\HARDWARE\SPI1.h
-..\obj\el9800appl.o: ..\SYSTEM\sys\sys.h
+..\obj\el9800appl.o: ..\HARDWARE\includes.h
+..\obj\el9800appl.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+..\obj\el9800appl.o: ..\Ethercat\Inc\applInterface.h
+..\obj\el9800appl.o: ..\Ethercat\Inc\esc.h
+..\obj\el9800appl.o: ..\Ethercat\Inc\ecatslv.h
+..\obj\el9800appl.o: ..\Ethercat\Inc\el9800hw.h
 ..\obj\el9800appl.o: ..\USER\stm32f4xx.h
 ..\obj\el9800appl.o: ..\CORE\core_cm4.h
 ..\obj\el9800appl.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
@@ -39,10 +43,7 @@
 ..\obj\el9800appl.o: ..\FWLIB\inc\stm32f4xx_dac.h
 ..\obj\el9800appl.o: ..\FWLIB\inc\stm32f4xx_dcmi.h
 ..\obj\el9800appl.o: ..\FWLIB\inc\stm32f4xx_fsmc.h
-..\obj\el9800appl.o: ..\Ethercat\Inc\applInterface.h
-..\obj\el9800appl.o: ..\Ethercat\Inc\esc.h
-..\obj\el9800appl.o: ..\Ethercat\Inc\ecatslv.h
-..\obj\el9800appl.o: ..\Ethercat\Inc\el9800hw.h
+..\obj\el9800appl.o: ..\SYSTEM\sys\sys.h
 ..\obj\el9800appl.o: ..\Ethercat\Inc\objdef.h
 ..\obj\el9800appl.o: ..\Ethercat\Inc\sdoserv.h
 ..\obj\el9800appl.o: ..\Ethercat\Inc\ecatcoe.h

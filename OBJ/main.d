@@ -65,3 +65,7 @@
 ..\obj\main.o: ..\Ethercat\Inc\ecatappl.h
 ..\obj\main.o: ..\Ethercat\Inc\el9800appl.h
 ..\obj\main.o: ..\Ethercat\Inc\ecatappl.h
+..\obj\main.o: API.h
+..\obj\main.o: ..\HARDWARE\ads8343.h
+..\obj\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
+..\obj\main.o: ..\HARDWARE\DIANCIFA.h

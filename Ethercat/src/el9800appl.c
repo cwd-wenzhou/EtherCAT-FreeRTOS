@@ -29,9 +29,8 @@ V4.30 : create file
 ------    Includes
 ------
 -----------------------------------------------------------------------------------------*/
-
 #include "ecat_def.h"
-#include "SPI1.h"
+#include "includes.h"
 #if EL9800_APPLICATION
 
 /* ECATCHANGE_START(V5.11) ECAT11*/
@@ -50,6 +49,9 @@ V4.30 : create file
 #if EL9800_HW
 #include "el9800hw.h"
 #endif
+
+
+
 /*--------------------------------------------------------------------------------------
 ------
 ------    local types and defines
@@ -187,7 +189,28 @@ UINT16 APPL_StartOutputHandler(void)
 
 UINT16 APPL_StopOutputHandler(void)
 {
-
+/*ECATCHANGE_START(V5.11) EL9800 1*/
+//    sDOOutputs.bLED1 = 0;
+//    sDOOutputs.bLED2 = 0;
+//    sDOOutputs.bLED3 = 0;
+//    sDOOutputs.bLED4 = 0;
+//#if _STM32_IO8
+//    sDOOutputs.bLED5 = 0;
+//    sDOOutputs.bLED7 = 0;
+//    sDOOutputs.bLED6 = 0;
+//    sDOOutputs.bLED8 = 0;
+//#endif
+//    
+//    LED_1                        = sDOOutputs.bLED1;
+//    LED_2                        = sDOOutputs.bLED2;
+//    LED_3                        = sDOOutputs.bLED3;
+//    LED_4                        = sDOOutputs.bLED4;
+//#if _STM32_IO8
+//    LED_5                        = sDOOutputs.bLED5;
+//    LED_7                        = sDOOutputs.bLED7;
+//    LED_6                        = sDOOutputs.bLED6;
+//    LED_8                        = sDOOutputs.bLED8;
+//#endif
 /*ECATCHANGE_END(V5.11) EL9800 1*/
     return ALSTATUSCODE_NOERROR;
 }
@@ -294,7 +317,6 @@ void APPL_InputMapping(UINT16* pData)
 {
     UINT16 j = 0;
     UINT16 *pTmpData = (UINT16 *)pData;
-
     /* we go through all entries of the TxPDO Assign object to get the assigned TxPDOs */
    for (j = 0; j < sTxPDOassign.u16SubIndex0; j++)
    {
@@ -309,20 +331,56 @@ void APPL_InputMapping(UINT16* pData)
          break;
 			/* TxPDO 2 */
       case 0x1A01:
-         *pTmpData++ = SWAPWORD(((UINT16 *) &AD_Switch_Cmd)[1]);
+         *pTmpData++ = SWAPWORD(((UINT16 *) &AD_Switch_Status_OUT)[1]);
+				 *pTmpData++ = SWAPWORD(((UINT16 *) &AD_Switch_Status_OUT)[2]);
+				 *pTmpData++ = SWAPWORD(((UINT16 *) &AD_Switch_Status_OUT)[3]);
+			   *pTmpData++ = SWAPWORD(((UINT16 *) &AD_Switch_Status_OUT)[4]);
+			   *pTmpData++ = SWAPWORD(((UINT16 *) &AD_Switch_Status_OUT)[5]);
          break;
       /* TxPDO 3 */
       case 0x1A02:
-         *pTmpData++ = SWAPWORD(((UINT16 *) &sAIInputs)[1]);
-         *pTmpData++ = 0x0111;//SWAPWORD(((UINT16 *) &sAIInputs)[2]);
-				 //test2=SWAPWORD(((UINT16 *) &sAIInputs)[2]);
+			   *pTmpData++ = SWAPWORD(((UINT16 *) &Current_Inputs)[2]);
+			   *pTmpData++ = SWAPWORD(((UINT16 *) &Current_Inputs)[3]);
+			   *pTmpData++ = SWAPWORD(((UINT16 *) &Current_Inputs)[4]);
+			   *pTmpData++ = SWAPWORD(((UINT16 *) &Current_Inputs)[5]);
+			   *pTmpData++ = SWAPWORD(((UINT16 *) &Current_Inputs)[6]);
+			   *pTmpData++ = SWAPWORD(((UINT16 *) &Current_Inputs)[7]);
+			   *pTmpData++ = SWAPWORD(((UINT16 *) &Current_Inputs)[8]);
+			   *pTmpData++ = SWAPWORD(((UINT16 *) &Current_Inputs)[9]);
+         break;
+			case 0x1A03:
+			   *pTmpData++ = SWAPWORD(((UINT16 *) &Diancifa_STATUS_6030)[1]);
+				 *pTmpData++ = SWAPWORD(((UINT16 *) &Diancifa_STATUS_6030)[2]);
+			   *pTmpData++ = SWAPWORD(((UINT16 *) &Diancifa_STATUS_6030)[3]);
+			   *pTmpData++ = SWAPWORD(((UINT16 *) &Diancifa_STATUS_6030)[4]);
+			   *pTmpData++ = SWAPWORD(((UINT16 *) &Diancifa_STATUS_6030)[5]);
+         break;
+			case 0x1A04:
+			   *pTmpData++ = SWAPWORD(((UINT16 *) &Selfcheck_STATUS_6040)[1]);
+         break;
+			case 0x1A05:
+			   *pTmpData++ = SWAPWORD(((UINT16 *) &ECMK_INFO_6050)[1]);
+				 *pTmpData++ = SWAPWORD(((UINT16 *) &ECMK_INFO_6050)[2]);
+				 *pTmpData++ = SWAPWORD(((UINT16 *) &ECMK_INFO_6050)[3]);
+				 *pTmpData++ = SWAPWORD(((UINT16 *) &ECMK_INFO_6050)[4]);
+				 *pTmpData++ = SWAPWORD(((UINT16 *) &ECMK_INFO_6050)[5]);
+				 *pTmpData++ = SWAPWORD(((UINT16 *) &ECMK_INFO_6050)[6]);
+				 *pTmpData++ = SWAPWORD(((UINT16 *) &ECMK_INFO_6050)[7]);
+				 *pTmpData++ = SWAPWORD(((UINT16 *) &ECMK_INFO_6050)[8]);
+			
+				 //*pTmpData++ = SWAPWORD(((UINT16 *) &ECMK_INFO_6050)[9]);
+			   *pTmpData++ = SWAPWORD(((UINT16 *) &ECMK_INFO_6050)[10]);
+			   *pTmpData++ = SWAPWORD(((UINT16 *) &ECMK_INFO_6050)[11]);
+			   *pTmpData++ = SWAPWORD(((UINT16 *) &ECMK_INFO_6050)[12]);
+			   *pTmpData++ = SWAPWORD(((UINT16 *) &ECMK_INFO_6050)[13]);
+			   *pTmpData++ = SWAPWORD(((UINT16 *) &ECMK_INFO_6050)[14]);
+			   *pTmpData++ = SWAPWORD(((UINT16 *) &ECMK_INFO_6050)[15]);
+			   *pTmpData++ = SWAPWORD(((UINT16 *) &ECMK_INFO_6050)[16]);
+			   *pTmpData++ = SWAPWORD(((UINT16 *) &ECMK_INFO_6050)[17]);
          break;
       }
    }
 }
-
-UINT16 TEST_0X7011_L;
-UINT16 TEST_0X7011_H;
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /**
@@ -349,11 +407,17 @@ void APPL_OutputMapping(UINT16* pData)
         /* RxPDO 2 */
         case 0x1601:
             ((UINT16 *) &AD_Switch_Cmd)[1] = SWAPWORD(*pTmpData++);
-						TEST_0X7011_L = SWAPWORD(*pTmpData++);
-						TEST_0X7011_H = SWAPWORD(*pTmpData++);
+						((UINT16 *) &AD_Switch_Cmd)[2] = SWAPWORD(*pTmpData++);
+						((UINT16 *) &AD_Switch_Cmd)[3] = SWAPWORD(*pTmpData++);
+						((UINT16 *) &AD_Switch_Cmd)[4] = SWAPWORD(*pTmpData++);
+						((UINT16 *) &AD_Switch_Cmd)[5] = SWAPWORD(*pTmpData++);
             break;
 				case 0x1602:
-            ((UINT16 *) &VAR0x7012)[1] = SWAPWORD(*pTmpData++);
+            ((UINT16 *) &Diancifa_cmd)[1] = SWAPWORD(*pTmpData++);
+						((UINT16 *) &Diancifa_cmd)[2] = SWAPWORD(*pTmpData++);
+						((UINT16 *) &Diancifa_cmd)[3] = SWAPWORD(*pTmpData++);
+						((UINT16 *) &Diancifa_cmd)[4] = SWAPWORD(*pTmpData++);
+						((UINT16 *) &Diancifa_cmd)[5] = SWAPWORD(*pTmpData++);
             break;
         }
     }
@@ -366,30 +430,35 @@ void APPL_OutputMapping(UINT16* pData)
 *////////////////////////////////////////////////////////////////////////////////////////
 void APPL_Application(void)
 {
+	//	*pRet=ad;
 #if _STM32_IO4
     UINT16 analogValue;
 #endif
-	if (AD_Inputs.CH1<10)
-	{
-		AD_Inputs.CH1=AD_Inputs.CH1+1;
-	}
-	else 
-		AD_Inputs.CH1=0;
+	//同步ad的值
+	//AD_Inputs.CH1=CH1_AD_Inputs;
+	//AD_Inputs.CH2=CH2_AD_Inputs;
+	//AD_Inputs.CH3=CH3_AD_Inputs;
+	//AD_Inputs.CH4=CH4_AD_Inputs;
+  //同步电流的值
+	Current_Inputs.CH_CURRENT[0]=CH1_current;
+	Current_Inputs.CH_CURRENT[1]=CH2_current;
+	Current_Inputs.CH_CURRENT[2]=CH3_current;
+	Current_Inputs.CH_CURRENT[3]=CH4_current;
+	//同步参数能否更改的值
+	AD_Switch_Status_OUT.CH1_ENABLE=AD_Switch_Cmd.CH1_ENABLE;
+	AD_Switch_Status_OUT.CH2_ENABLE=AD_Switch_Cmd.CH2_ENABLE;
+	AD_Switch_Status_OUT.CH3_ENABLE=AD_Switch_Cmd.CH3_ENABLE;
+	AD_Switch_Status_OUT.CH4_ENABLE=AD_Switch_Cmd.CH4_ENABLE;
+	//同步频率的值
+	if (AD_Switch_Status_OUT.CH1_ENABLE)
+		AD_Switch_Status_OUT.CH1_Frequency=AD_Switch_Cmd.CH1_Frequency;
+	if (AD_Switch_Status_OUT.CH2_ENABLE)
+		AD_Switch_Status_OUT.CH2_Frequency=AD_Switch_Cmd.CH2_Frequency;
+	if (AD_Switch_Status_OUT.CH3_ENABLE)
+		AD_Switch_Status_OUT.CH3_Frequency=AD_Switch_Cmd.CH3_Frequency;
+	if (AD_Switch_Status_OUT.CH4_ENABLE)
+		AD_Switch_Status_OUT.CH4_Frequency=AD_Switch_Cmd.CH4_Frequency;
 	
-	if (AD_Inputs.CH2<1000)
-	{
-		AD_Inputs.CH2=AD_Inputs.CH2+1;
-	}
-	else 
-		AD_Inputs.CH2=0;
-	AD_Inputs.CH3=U16_AD_LTC2486(5);
-	
-	AD_Switch_Status_OUT.CH1=AD_Switch_Cmd.CH1;
-	AD_Switch_Status_OUT.CH1=1;
-	AD_Switch_Status_OUT.CH2=AD_Switch_Cmd.CH2;
-	AD_Switch_Status_OUT.CH3=AD_Switch_Cmd.CH3;
-	AD_Switch_Status_OUT.CH4=AD_Switch_Cmd.CH4;
-
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -423,23 +492,23 @@ UINT8 ReadObject0x1802( UINT16 index, UINT8 subindex, UINT32 dataSize, UINT16 MB
     }
     else if(subindex == 7)
     {
-        /*min size is one Byte*/
-        UINT8 *pu8Data = (UINT8*)pData;
-        
-        //Reset Buffer
-        *pu8Data = 0; 
+//        /*min size is one Byte*/
+//        UINT8 *pu8Data = (UINT8*)pData;
+//        
+//        //Reset Buffer
+//        *pu8Data = 0; 
 
-        *pu8Data = sAIInputs.bTxPDOState;
+//        *pu8Data = sAIInputs.bTxPDOState;
     }
     else if(subindex == 9)
     {
-        /*min size is one Byte*/
-        UINT8 *pu8Data = (UINT8*)pData;
-        
-        //Reset Buffer
-        *pu8Data = 0; 
+//        /*min size is one Byte*/
+//        UINT8 *pu8Data = (UINT8*)pData;
+//        
+//        //Reset Buffer
+//        *pu8Data = 0; 
 
-        *pu8Data = sAIInputs.bTxPDOToggle;
+//        *pu8Data = sAIInputs.bTxPDOToggle;
     }
     else
         return ABORTIDX_SUBINDEX_NOT_EXISTING;
@@ -451,12 +520,12 @@ UINT8 ReadObject0x1802( UINT16 index, UINT8 subindex, UINT32 dataSize, UINT16 MB
 /////////////////////////////////////////////////////////////////////////////////////////
 /**
  \return    The Explicit Device ID of the EtherCAT slave
- \\         此函数未用到
+
  \brief     Calculate the Explicit Device ID
 *////////////////////////////////////////////////////////////////////////////////////////
 UINT16 APPL_GetDeviceID()
 {
-    UINT16 Value = 0x1234;
+    UINT16 Value = (UINT16)(SWITCH_8<<7)|(SWITCH_7<<6)|(SWITCH_6<<5)|(SWITCH_5<<4)|(SWITCH_4<<3)|(SWITCH_3<<2)|(SWITCH_2<<1)|(SWITCH_1);
     return Value;
 }
 #endif
@@ -469,13 +538,13 @@ UINT16 APPL_GetDeviceID()
 
 *////////////////////////////////////////////////////////////////////////////////////////
 
+ 
 #if _STM32_IO8
 int main(void)
 #else
 void main(void)
 #endif
 {
-	//EXTI0_IRQHandler 中断服务函数（方便查看
     /* initialize the Hardware and the EtherCAT Slave Controller */
     HW_Init();
 
@@ -484,8 +553,7 @@ void main(void)
     bRunApplication = TRUE;
     do
     {
-        MainLoop();
-
+        MainLoop();						
     } while (bRunApplication == TRUE);
 
     HW_Release();
